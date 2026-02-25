@@ -3,8 +3,25 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const refreshTokens = pgTable("refresh_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const lists = pgTable("lists", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -12,7 +29,7 @@ export const lists = pgTable("lists", {
 
 export const items = pgTable("items", {
   id: serial("id").primaryKey(),
-  listId: integer("list_id").notNull().references(() => lists.id),
+  listId: integer("list_id").notNull().references(() => lists.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   isSeen: boolean("is_seen").default(false).notNull(),
   rating: integer("rating"),
@@ -20,8 +37,24 @@ export const items = pgTable("items", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const listsRelations = relations(lists, ({ many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
+  lists: many(lists),
+  refreshTokens: many(refreshTokens),
+}));
+
+export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [refreshTokens.userId],
+    references: [users.id],
+  }),
+}));
+
+export const listsRelations = relations(lists, ({ many, one }) => ({
   items: many(items),
+  user: one(users, {
+    fields: [lists.userId],
+    references: [users.id],
+  }),
 }));
 
 export const itemsRelations = relations(items, ({ one }) => ({
@@ -31,6 +64,8 @@ export const itemsRelations = relations(items, ({ one }) => ({
   }),
 }));
 
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertRefreshTokenSchema = createInsertSchema(refreshTokens).omit({ id: true, createdAt: true });
 export const insertListSchema = createInsertSchema(lists).omit({ id: true, createdAt: true });
 export const insertItemSchema = createInsertSchema(items).omit({ id: true, createdAt: true, isSeen: true, rating: true, review: true }).extend({
   listId: z.coerce.number()
@@ -38,6 +73,11 @@ export const insertItemSchema = createInsertSchema(items).omit({ id: true, creat
 export const updateItemSchema = createInsertSchema(items).omit({ id: true, createdAt: true, listId: true }).partial().extend({
   rating: z.coerce.number().optional().nullable(),
 });
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type RefreshToken = typeof refreshTokens.$inferSelect;
+export type InsertRefreshToken = z.infer<typeof insertRefreshTokenSchema>;
 
 export type List = typeof lists.$inferSelect;
 export type InsertList = z.infer<typeof insertListSchema>;

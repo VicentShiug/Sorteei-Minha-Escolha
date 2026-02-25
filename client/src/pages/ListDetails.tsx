@@ -148,7 +148,7 @@ export default function ListDetails() {
                 {activeTab === 'pending' && items.length === 0 && (
                   <Button 
                     onClick={() => setIsAddItemOpen(true)}
-                    variant="link"
+                    variant="ghost"
                     className="mt-4 text-primary"
                   >
                     Add your first item

@@ -14,6 +14,10 @@ export const errorSchemas = {
   }),
 };
 
+const listInputSchema = insertListSchema.extend({
+  userId: z.number().optional()
+});
+
 export const api = {
   lists: {
     list: {
@@ -34,7 +38,7 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/lists' as const,
-      input: insertListSchema,
+      input: listInputSchema,
       responses: {
         201: z.custom<typeof lists.$inferSelect>(),
         400: errorSchemas.validation,
@@ -94,3 +98,6 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
 
 export type ListResponse = z.infer<typeof api.lists.create.responses[201]>;
 export type ItemResponse = z.infer<typeof api.items.create.responses[201]>;
+export type CreateListRequest = z.infer<typeof api.lists.create.input>;
+export type CreateItemRequest = z.infer<typeof api.items.create.input>;
+export type UpdateItemRequest = z.infer<typeof api.items.update.input>;
