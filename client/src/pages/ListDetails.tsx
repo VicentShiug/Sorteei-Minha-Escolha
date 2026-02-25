@@ -12,7 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 export default function ListDetails() {
   const params = useParams();
-  const listId = Number(params.id);
+  const listId = params.id as string;
   const { data: list, isLoading } = useList(listId);
 
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
@@ -158,8 +158,9 @@ export default function ListDetails() {
             ) : (
               displayItems.map((item) => (
                 <ItemCard 
-                  key={item.id} 
-                  item={item} 
+                  key={item.externalId} 
+                  item={item}
+                  listExternalId={list?.externalId || ""} 
                   onMarkSeenClick={handleMarkSeenClick}
                 />
               ))
@@ -170,13 +171,13 @@ export default function ListDetails() {
 
       {/* Dialogs */}
       <ItemFormDialog 
-        listId={listId} 
+        listId={list?.id} 
         isOpen={isAddItemOpen} 
         onOpenChange={setIsAddItemOpen} 
       />
       
       <MarkSeenDialog 
-        listId={listId}
+        listId={list?.externalId}
         item={selectedItem}
         isOpen={isMarkSeenOpen}
         onOpenChange={setIsMarkSeenOpen}

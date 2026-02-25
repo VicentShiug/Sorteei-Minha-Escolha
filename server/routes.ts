@@ -14,6 +14,7 @@ import {
   hashPassword,
   verifyPassword
 } from "./auth";
+import { toApiResponse, toApiListResponse } from "./utils";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -38,8 +39,8 @@ export async function registerRoutes(
       
       const user = await storage.createUser(email, password, name);
       
-      const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-      const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+      const accessToken = generateAccessToken({ userExternalId: user.externalId, email: user.email });
+      const refreshToken = generateRefreshToken({ userExternalId: user.externalId, email: user.email });
       
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       await storage.createRefreshToken(user.id, refreshToken, expiresAt);
@@ -59,7 +60,7 @@ export async function registerRoutes(
         await storage.createItem({ listId: booksList.id, name: "Brave New World" });
       }
       
-      res.status(201).json({ id: user.id, email: user.email, name: user.name });
+      res.status(201).json({ externalId: user.externalId, email: user.email, name: user.name });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -90,15 +91,15 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
-      const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-      const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+      const accessToken = generateAccessToken({ userExternalId: user.externalId, email: user.email });
+      const refreshToken = generateRefreshToken({ userExternalId: user.externalId, email: user.email });
       
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       await storage.createRefreshToken(user.id, refreshToken, expiresAt);
       
       setAuthCookies(res, accessToken, refreshToken);
       
-      res.json({ id: user.id, email: user.email, name: user.name });
+      res.json({ externalId: user.externalId, email: user.email, name: user.name });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -139,20 +140,20 @@ export async function registerRoutes(
       
       await storage.deleteRefreshToken(token);
       
-      const user = await storage.getUserById(payload.userId);
+      const user = await storage.getUserByExternalId(payload.userExternalId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
       
-      const newAccessToken = generateAccessToken({ userId: user.id, email: user.email });
-      const newRefreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+      const newAccessToken = generateAccessToken({ userExternalId: user.externalId, email: user.email });
+      const newRefreshToken = generateRefreshToken({ userExternalId: user.externalId, email: user.email });
       
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       await storage.createRefreshToken(user.id, newRefreshToken, expiresAt);
       
       setAuthCookies(res, newAccessToken, newRefreshToken);
       
-      res.json({ id: user.id, email: user.email, name: user.name });
+      res.json({ externalId: user.externalId, email: user.email, name: user.name });
     } catch (err) {
       console.error("Refresh error:", err);
       return res.status(401).json({ message: "Invalid refresh token" });
@@ -161,38 +162,57 @@ export async function registerRoutes(
 
   app.get("/api/auth/me", authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
-    const user = await storage.getUserById(authReq.user!.userId);
+    const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
-    res.json({ id: user.id, email: user.email, name: user.name });
+    res.json({ externalId: user.externalId, email: user.email, name: user.name });
   });
 
   // Lists - Protected
   app.get(api.lists.list.path, authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
-    const lists = await storage.getLists(authReq.user!.userId);
-    res.json(lists);
+    const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    const lists = await storage.getLists(user.id);
+    const response = lists.map((list) => ({
+      ...toApiResponse(list),
+      items: toApiListResponse(list.items)
+    }));
+    res.json(response);
   });
 
   app.get(api.lists.get.path, authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
-    const id = parseInt(req.params.id as string);
-    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+    const externalId = req.params.id as string;
+    const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
     
-    const list = await storage.getList(id, authReq.user!.userId);
+    const list = await storage.getListByExternalId(externalId, user.id);
     if (!list) {
       return res.status(404).json({ message: 'List not found' });
     }
-    res.json(list);
+    
+    res.json({
+      ...toApiResponse(list),
+      items: toApiListResponse(list.items)
+    });
   });
 
   app.post(api.lists.create.path, authenticate, async (req, res) => {
     try {
       const authReq = req as AuthenticatedRequest;
+      const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
       const input = api.lists.create.input.parse(req.body);
-      const list = await storage.createList({ name: input.name, description: input.description, userId: authReq.user!.userId });
-      res.status(201).json(list);
+      const list = await storage.createList({ name: input.name, description: input.description, userId: user.id });
+      res.status(201).json(toApiResponse(list));
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -206,9 +226,12 @@ export async function registerRoutes(
 
   app.delete(api.lists.delete.path, authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
-    const id = parseInt(req.params.id as string);
-    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
-    await storage.deleteList(id, authReq.user!.userId);
+    const externalId = req.params.id as string;
+    const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    await storage.deleteList(externalId, user.id);
     res.status(204).send();
   });
 
@@ -217,7 +240,7 @@ export async function registerRoutes(
     try {
       const input = api.items.create.input.parse(req.body);
       const item = await storage.createItem(input);
-      res.status(201).json(item);
+      res.status(201).json(toApiResponse(item));
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -231,11 +254,10 @@ export async function registerRoutes(
 
   app.patch(api.items.update.path, authenticate, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
-      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const externalId = req.params.id as string;
       const input = api.items.update.input.parse(req.body);
-      const item = await storage.updateItem(id, input);
-      res.json(item);
+      const item = await storage.updateItem(externalId, input);
+      res.json(toApiResponse(item));
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({
@@ -252,9 +274,12 @@ export async function registerRoutes(
 
   app.delete(api.items.delete.path, authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
-    const id = parseInt(req.params.id as string);
-    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
-    await storage.deleteItem(id, authReq.user!.userId);
+    const externalId = req.params.id as string;
+    const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    await storage.deleteItem(externalId, user.id);
     res.status(204).send();
   });
 

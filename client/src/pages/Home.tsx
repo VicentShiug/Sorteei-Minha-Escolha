@@ -92,7 +92,7 @@ export default function Home() {
 						<AnimatePresence>
 							{lists?.map((list) => (
 								<motion.div
-									key={list.id}
+									key={list.externalId}
 									layout
 									initial={{ opacity: 0, scale: 0.95 }}
 									animate={{ opacity: 1, scale: 1 }}
@@ -100,7 +100,7 @@ export default function Home() {
 									transition={{ duration: 0.2 }}
 								>
 									<Link
-										href={`/lists/${list.id}`}
+										href={`/lists/${list.externalId}`}
 										className="block h-full group"
 									>
 										<div className="bg-card h-full p-8 rounded-3xl minimal-shadow hover:minimal-shadow-hover hover:-translate-y-1 transition-all duration-300 border border-border/30 relative overflow-hidden flex flex-col">
@@ -121,7 +121,7 @@ export default function Home() {
 														if (
 															confirm("Delete this list and all its items?")
 														) {
-															deleteList.mutate(list.id);
+															deleteList.mutate(list.externalId);
 														}
 													}}
 												>

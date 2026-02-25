@@ -15,7 +15,6 @@ export function useCreateItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateItemRequest) => {
-      // Force coercion for listId to ensure it matches schema expectations
       const payload = {
         ...data,
         listId: Number(data.listId)
@@ -41,16 +40,15 @@ export function useCreateItem() {
       return parseWithLogging(api.items.create.responses[201], responseData, "items.create");
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific list query to show the new item
-      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, Number(variables.listId)] });
+      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, variables.listId] });
     },
   });
 }
 
-export function useUpdateItem(listId: number) {
+export function useUpdateItem(listExternalId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: UpdateItemRequest }) => {
+    mutationFn: async ({ id, data }: { id: string; data: UpdateItemRequest }) => {
       const validated = api.items.update.input.parse(data);
       const url = buildUrl(api.items.update.path, { id });
       const res = await fetch(url, {
@@ -73,16 +71,15 @@ export function useUpdateItem(listId: number) {
       return parseWithLogging(api.items.update.responses[200], responseData, "items.update");
     },
     onSuccess: () => {
-      // Invalidate the specific list to refresh item state
-      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, listId] });
+      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, listExternalId] });
     },
   });
 }
 
-export function useDeleteItem(listId: number) {
+export function useDeleteItem(listExternalId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.items.delete.path, { id });
       const res = await fetch(url, {
         method: api.items.delete.method,
@@ -92,7 +89,7 @@ export function useDeleteItem(listId: number) {
       if (!res.ok) throw new Error("Failed to delete item");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, listId] });
+      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, listExternalId] });
     },
   });
 }

@@ -10,7 +10,7 @@ const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
 export interface TokenPayload {
-  userId: number;
+  userExternalId: string;
   email: string;
 }
 

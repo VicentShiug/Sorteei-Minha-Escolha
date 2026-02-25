@@ -23,7 +23,7 @@ export function useLists() {
   });
 }
 
-export function useList(id: number) {
+export function useList(id: string) {
   return useQuery({
     queryKey: [api.lists.get.path, id],
     queryFn: async () => {
@@ -70,7 +70,7 @@ export function useCreateList() {
 export function useDeleteList() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.lists.delete.path, { id });
       const res = await fetch(url, {
         method: api.lists.delete.method,

@@ -9,22 +9,23 @@ import { motion } from "framer-motion";
 
 interface ItemCardProps {
   item: Item;
+  listExternalId: string;
   onMarkSeenClick: (item: Item) => void;
 }
 
-export function ItemCard({ item, onMarkSeenClick }: ItemCardProps) {
+export function ItemCard({ item, listExternalId, onMarkSeenClick }: ItemCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const deleteItem = useDeleteItem(item.listId);
-  const updateItem = useUpdateItem(item.listId);
+  const deleteItem = useDeleteItem(listExternalId);
+  const updateItem = useUpdateItem(listExternalId);
 
   const handleDelete = () => {
     setIsDeleting(true);
-    deleteItem.mutate(item.id);
+    deleteItem.mutate(item.externalId);
   };
 
   const handleUnmark = () => {
     updateItem.mutate({
-      id: item.id,
+      id: item.externalId,
       data: { isSeen: false, rating: null, review: null }
     });
   };

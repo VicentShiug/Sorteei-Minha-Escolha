@@ -116,18 +116,64 @@ export function useLists() {
 
 - Use Drizzle ORM with PostgreSQL
 - Define schemas in `shared/schema.ts`
+- Use `baseColumns()` helper from `shared/table.ts` for standard columns
 - Create insert schemas using `createInsertSchema()` from drizzle-zod
 - Export inferred types: `List`, `InsertList`, `Item`, `InsertItem`
 
 ```typescript
+// shared/table.ts - Helper function
+export function baseColumns() {
+  return {
+    id: serial("id").primaryKey(),
+    externalId: uuid("external_id").notNull().unique().defaultRandom(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  };
+}
+
+// shared/schema.ts - Using the helper
 export const lists = pgTable("lists", {
-  id: serial("id").primaryKey(),
+  ...baseColumns(),
+  userId: integer("user_id").notNull().references(() => users.id),
   name: text("name").notNull(),
+  description: text("description"),
 });
 
-export const insertListSchema = createInsertSchema(lists).omit({ id: true });
+export const insertListSchema = createInsertSchema(lists).omit({ id: true, externalId: true, createdAt: true });
 export type List = typeof lists.$inferSelect;
 export type InsertList = z.infer<typeof insertListSchema>;
+```
+
+### External ID Pattern (Security)
+
+All tables have:
+- `id`: Internal serial primary key (never exposed to frontend)
+- `externalId`: UUID unique identifier (exposed to frontend via API)
+
+This prevents frontend from knowing internal database IDs.
+
+**API Response Utilities** (`server/utils.ts`):
+```typescript
+// Removes internal fields from API responses
+export function toApiResponse<T>(obj: T): Omit<T, 'id' | 'userId' | 'listId'> {
+  const { id, userId, listId, ...rest } = obj;
+  return rest;
+}
+
+export function toApiListResponse<T>(items: T[]) {
+  return items.map((item) => toApiResponse(item));
+}
+```
+
+**Usage in routes**:
+```typescript
+// List with nested items
+res.json({
+  ...toApiResponse(list),
+  items: toApiListResponse(list.items)
+});
+
+// Single item
+res.json(toApiResponse(item));
 ```
 
 ### API Routes
@@ -201,13 +247,23 @@ npm run db:push
 
 The app uses JWT-based authentication with access and refresh tokens stored in httpOnly cookies.
 
+### Token Payload
+
+JWT tokens contain `userExternalId` (not internal numeric ID):
+```typescript
+export interface TokenPayload {
+  userExternalId: string;
+  email: string;
+}
+```
+
 ### Endpoints
 
-- `POST /api/auth/register` - Create new user (seeds lists for new users)
-- `POST /api/auth/login` - Login with email/password
+- `POST /api/auth/register` - Create new user (seeds lists for new users), returns `externalId`
+- `POST /api/auth/login` - Login with email/password, returns `externalId`
 - `POST /api/auth/logout` - Logout (invalidates refresh token)
 - `POST /api/auth/refresh` - Refresh access token
-- `GET /api/auth/me` - Get current user
+- `GET /api/auth/me` - Get current user (returns `externalId`)
 
 ### Protected Routes
 
@@ -217,6 +273,7 @@ All `/api/lists/*` and `/api/items/*` routes require authentication via the `aut
 
 - Use `AuthContext` and `useAuth()` hook from `@/context/AuthContext`
 - Routes are protected in `App.tsx` via `ProtectedRoute` component
+- All ID parameters in URLs are UUID strings (`externalId`), not numeric IDs
 
 ## Adding New Features
 

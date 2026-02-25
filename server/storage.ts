@@ -15,6 +15,7 @@ export interface IStorage {
   createUser(email: string, password: string, name: string): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getUserById(id: number): Promise<User | undefined>;
+  getUserByExternalId(externalId: string): Promise<User | undefined>;
 
   // Refresh Tokens
   createRefreshToken(userId: number, token: string, expiresAt: Date): Promise<RefreshToken>;
@@ -24,14 +25,14 @@ export interface IStorage {
 
   // Lists
   getLists(userId: number): Promise<(List & { items: Item[] })[]>;
-  getList(id: number, userId: number): Promise<(List & { items: Item[] }) | undefined>;
+  getListByExternalId(externalId: string, userId: number): Promise<(List & { items: Item[] }) | undefined>;
   createList(list: InsertList): Promise<List>;
-  deleteList(id: number, userId: number): Promise<void>;
+  deleteList(externalId: string, userId: number): Promise<void>;
 
   // Items
   createItem(item: InsertItem): Promise<Item>;
-  updateItem(id: number, updates: UpdateItemRequest): Promise<Item>;
-  deleteItem(id: number, listUserId: number): Promise<void>;
+  updateItem(externalId: string, updates: UpdateItemRequest): Promise<Item>;
+  deleteItem(externalId: string, userId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -53,6 +54,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserById(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByExternalId(externalId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.externalId, externalId));
     return user;
   }
 
@@ -90,9 +96,9 @@ export class DatabaseStorage implements IStorage {
     return allLists;
   }
 
-  async getList(id: number, userId: number): Promise<(List & { items: Item[] }) | undefined> {
+  async getListByExternalId(externalId: string, userId: number): Promise<(List & { items: Item[] }) | undefined> {
     const list = await db.query.lists.findFirst({
-      where: and(eq(lists.id, id), eq(lists.userId, userId)),
+      where: and(eq(lists.externalId, externalId), eq(lists.userId, userId)),
       with: {
         items: true
       }
@@ -105,9 +111,14 @@ export class DatabaseStorage implements IStorage {
     return newList;
   }
 
-  async deleteList(id: number, userId: number): Promise<void> {
-    await db.delete(items).where(eq(items.listId, id));
-    await db.delete(lists).where(and(eq(lists.id, id), eq(lists.userId, userId)));
+  async deleteList(externalId: string, userId: number): Promise<void> {
+    const list = await db.query.lists.findFirst({
+      where: and(eq(lists.externalId, externalId), eq(lists.userId, userId))
+    });
+    if (!list) return;
+    
+    await db.delete(items).where(eq(items.listId, list.id));
+    await db.delete(lists).where(eq(lists.id, list.id));
   }
 
   // Items
@@ -116,28 +127,40 @@ export class DatabaseStorage implements IStorage {
     return newItem;
   }
 
-  async updateItem(id: number, updates: UpdateItemRequest): Promise<Item> {
+  async updateItem(externalId: string, updates: UpdateItemRequest): Promise<Item> {
+    const item = await db.query.items.findFirst({
+      where: eq(items.externalId, externalId)
+    });
+    if (!item) throw new Error("Item not found");
+    
     const [updated] = await db.update(items)
       .set(updates)
-      .where(eq(items.id, id))
+      .where(eq(items.id, item.id))
       .returning();
-    if (!updated) throw new Error("Item not found");
     return updated;
   }
 
-  async deleteItem(id: number, userId: number): Promise<void> {
-    const itemList = await db.query.lists.findFirst({
+  async deleteItem(externalId: string, userId: number): Promise<void> {
+    const item = await db.query.items.findFirst({
+      where: eq(items.externalId, externalId)
+    });
+    
+    if (!item) {
+      throw new Error("Item not found");
+    }
+
+    const list = await db.query.lists.findFirst({
       where: and(
-        eq(lists.userId, userId),
-        exists(db.select().from(items).where(and(eq(items.id, id), eq(items.listId, lists.id))))
+        eq(lists.id, item.listId),
+        eq(lists.userId, userId)
       )
     });
     
-    if (!itemList) {
+    if (!list) {
       throw new Error("Item not found");
     }
     
-    await db.delete(items).where(eq(items.id, id));
+    await db.delete(items).where(eq(items.id, item.id));
   }
 }
 

@@ -11,4 +11,13 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+async function createExtensions() {
+  await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
+}
+
+createExtensions().then(() => {
+  console.log("PostgreSQL extensions initialized");
+}).catch(console.error);
+
 export const db = drizzle(pool, { schema });

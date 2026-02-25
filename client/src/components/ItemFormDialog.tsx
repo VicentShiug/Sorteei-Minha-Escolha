@@ -7,7 +7,7 @@ import { useCreateItem } from "@/hooks/use-items";
 import { useToast } from "@/hooks/use-toast";
 
 interface ItemFormDialogProps {
-  listId: number;
+  listId?: number;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -19,7 +19,7 @@ export function ItemFormDialog({ listId, isOpen, onOpenChange }: ItemFormDialogP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !listId) return;
 
     createItem.mutate(
       { name: name.trim(), listId },

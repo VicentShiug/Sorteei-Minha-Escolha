@@ -11,7 +11,7 @@ import confetti from "canvas-confetti";
 
 interface MarkSeenDialogProps {
   item: Item | null;
-  listId: number;
+  listId?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -19,7 +19,7 @@ interface MarkSeenDialogProps {
 export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenDialogProps) {
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState("");
-  const updateItem = useUpdateItem(listId);
+  const updateItem = useUpdateItem(listId || "");
   const { toast } = useToast();
 
   // Reset state when dialog opens for a new item
@@ -32,11 +32,11 @@ export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenD
   };
 
   const handleSubmit = () => {
-    if (!item) return;
+    if (!item || !listId) return;
 
     updateItem.mutate(
       {
-        id: item.id,
+        id: item.externalId,
         data: {
           isSeen: true,
           rating: rating > 0 ? rating : undefined,
