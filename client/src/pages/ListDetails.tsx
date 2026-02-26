@@ -53,17 +53,7 @@ export default function ListDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24">
-      {/* Navigation Header */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 h-16 flex items-center">
-          <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors group">
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Back to Lists</span>
-          </Link>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-background text-foreground pb-24 pt-16">
       <main className="max-w-4xl mx-auto px-4 sm:px-8 mt-12">
         {/* List Header & Hero Action */}
         <header className="mb-12 text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-8">

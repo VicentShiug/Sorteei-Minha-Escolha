@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import ListDetails from "./pages/ListDetails";
 import Auth from "./pages/Auth";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Navbar } from "./components/layout/Navbar";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -61,10 +62,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <AuthProvider>
-          <Router />
+          <div className="min-h-screen bg-background">
+            <Navbar />
+            <Router />
+          </div>
         </AuthProvider>
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );
