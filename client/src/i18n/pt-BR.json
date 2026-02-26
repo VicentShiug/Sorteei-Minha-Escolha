@@ -1,0 +1,96 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "nav": {
+    "myLists": "Minhas Listas",
+    "publicLists": "Listas Públicas",
+    "logout": "Sair",
+    "logoutConfirm": "Tem certeza que deseja sair?"
+  },
+  "home": {
+    "title": "Jogando os Dados",
+    "subtitle": "Organize e sorteie o que você vai consumir a seguir.",
+    "createList": "Criar Lista",
+    "noLists": "Nenhuma lista ainda",
+    "noListsDescription": "Crie sua primeira lista para começar a organizar seu conteúdo.",
+    "items": "itens",
+    "item": "item",
+    "drawWinner": "Sortear",
+    "deleteList": "Excluir Lista",
+    "deleteConfirm": "Tem certeza que deseja excluir esta lista?",
+    "emptyList": "Esta lista está vazia",
+    "emptyListDescription": "Adicione itens para começar a sortear.",
+    "pending": "Pendentes",
+    "completed": "Concluídos",
+    "noCompletedItems": "Nenhum item concluído ainda",
+    "allCaughtUp": "Você completou tudo!",
+    "gotIt": "Entendi",
+    "markAsDone": "Marcar como Feito"
+  },
+  "listDetails": {
+    "backToLists": "Voltar às Listas",
+    "addItem": "Adicionar Item",
+    "drawWinner": "Sortear",
+    "deleteItem": "Excluir Item",
+    "noWinner": "Nenhum sorteado ainda",
+    "winner": "Sorteado!",
+    "itemName": "Nome do item",
+    "itemNamePlaceholder": "Digite o nome do item...",
+    "emptyItemName": "Nome do item é obrigatório"
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome",
+    "confirmPassword": "Confirmar Senha",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "loginSuccess": "Login realizado com sucesso!",
+    "registerSuccess": "Cadastro realizado com sucesso!",
+    "logoutSuccess": "Logout realizado com sucesso!",
+    "invalidCredentials": "E-mail ou senha inválidos",
+    "emailRequired": "E-mail é obrigatório",
+    "passwordRequired": "Senha é obrigatória",
+    "nameRequired": "Nome é obrigatório",
+    "passwordMismatch": "As senhas não conferem",
+    "emailInvalid": "Formato de e-mail inválido",
+    "loading": "Autenticando..."
+  },
+  "draw": {
+    "title": "Sorteando...",
+    "thinking": {
+      "0": { "text": "Jogando os dados...", "icon": "dices" },
+      "1": { "text": "Fazendo cálculos matemáticos...", "icon": "calculator" },
+      "2": { "text": "Fazendo bip bop bup...", "icon": "cpu" },
+      "3": { "text": "Consultando o universo...", "icon": "sparkles" },
+      "4": { "text": "Procurando o destino...", "icon": "search" },
+      "5": { "text": "Analisando as possibilidades...", "icon": "brain" },
+      "6": { "text": "Ajustando a mira...", "icon": "target" },
+      "7": { "text": "Misturando as energias...", "icon": "shuffle" }
+    },
+    "winner": "O sorteado é:",
+    "youShouldNext": "Você deve consumir a seguir",
+    "drawAgain": "Sortear Novamente",
+    "close": "Fechar",
+    "noItems": "Adicione itens para sortear",
+    "allCaughtUp": "Tudo listo!",
+    "completedAll": "Você completou todos os itens desta lista."
+  },
+  "form": {
+    "listName": "Nome da Lista",
+    "listDescription": "Descrição (opcional)",
+    "listNamePlaceholder": "Digite o nome da lista...",
+    "listDescriptionPlaceholder": "Digite a descrição...",
+    "emptyName": "Nome da lista é obrigatório"
+  }
+}

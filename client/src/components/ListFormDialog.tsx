@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useCreateList } from "@/hooks/use-lists";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface ListFormDialogProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function ListFormDialog({ isOpen, onOpenChange }: ListFormDialogProps) {
   const [description, setDescription] = useState("");
   const createList = useCreateList();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,7 @@ export function ListFormDialog({ isOpen, onOpenChange }: ListFormDialogProps) {
       },
       {
         onSuccess: () => {
-          toast({ title: "List created successfully" });
+          toast({ title: t('common.success') });
           setName("");
           setDescription("");
           onOpenChange(false);
@@ -48,15 +50,15 @@ export function ListFormDialog({ isOpen, onOpenChange }: ListFormDialogProps) {
     }}>
       <DialogContent className="sm:max-w-md rounded-2xl border-none minimal-shadow-hover">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Create new list</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{t('home.createList')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label htmlFor="list-name" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">Name</Label>
+            <Label htmlFor="list-name" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">{t('form.listName')}</Label>
             <Input
               id="list-name"
-              placeholder="e.g. Movies to Watch"
+              placeholder={t('form.listNamePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="h-12 rounded-xl bg-secondary/50 border-transparent focus-visible:bg-background focus-visible:border-primary transition-colors text-base"
@@ -65,10 +67,10 @@ export function ListFormDialog({ isOpen, onOpenChange }: ListFormDialogProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="list-desc" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">Description (Optional)</Label>
+            <Label htmlFor="list-desc" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">{t('form.listDescription')}</Label>
             <Textarea
               id="list-desc"
-              placeholder="What kind of items go here?"
+              placeholder={t('form.listDescriptionPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="resize-none h-24 rounded-xl bg-secondary/50 border-transparent focus-visible:bg-background focus-visible:border-primary transition-colors text-base"
@@ -81,7 +83,7 @@ export function ListFormDialog({ isOpen, onOpenChange }: ListFormDialogProps) {
               disabled={createList.isPending || !name.trim()}
               className="w-full rounded-xl h-12"
             >
-              {createList.isPending ? "Creating..." : "Create List"}
+              {createList.isPending ? t('common.loading') : t('home.createList')}
             </Button>
           </DialogFooter>
         </form>

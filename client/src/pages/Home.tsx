@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Plus, ListFilter, Trash2, LogOut, User } from "lucide-react";
+import { Plus, ListFilter, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLists, useDeleteList } from "@/hooks/use-lists";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
         const { data: lists, isLoading } = useLists();
         const deleteList = useDeleteList();
         const [isCreateOpen, setIsCreateOpen] = useState(false);
+        const { t } = useTranslation();
 
         return (
                 <div className="min-h-screen bg-background text-foreground pb-20 pt-16">
                         <header className="pt-12 pb-12 px-6 sm:px-12 max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
                                 <div>
                                         <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight">
-                                                Jogando os Dados
+                                                {t('home.title')}
                                         </h1>
                                         <p className="text-muted-foreground mt-3 text-lg">
-                                                Organize e sorteie o que você vai consumir a seguir.
+                                                {t('home.subtitle')}
                                         </p>
                                 </div>
                         </header>
@@ -30,7 +31,7 @@ export default function Home() {
                                         className="rounded-full px-6 h-12 minimal-shadow hover:minimal-shadow-hover transition-all"
                                 >
                                         <Plus className="w-5 h-5 mr-2" />
-                                        Create List
+                                        {t('home.createList')}
                                 </Button>
                         </div>
 
@@ -50,18 +51,17 @@ export default function Home() {
                                                         <ListFilter className="w-10 h-10 text-muted-foreground" />
                                                 </div>
                                                 <h2 className="text-2xl font-display font-medium mb-2">
-                                                        No lists yet
+                                                        {t('home.noLists')}
                                                 </h2>
                                                 <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                                                        Create your first list to start tracking movies, books, or
-                                                        anything else you want to get to.
+                                                        {t('home.noListsDescription')}
                                                 </p>
                                                 <Button
                                                         onClick={() => setIsCreateOpen(true)}
                                                         variant="outline"
                                                         className="rounded-xl h-12 px-8"
                                                 >
-                                                        Create your first list
+                                                        {t('home.createList')}
                                                 </Button>
                                         </div>
                                 ) : (
@@ -96,7 +96,7 @@ export default function Home() {
                                                                                                         onClick={(e) => {
                                                                                                                 e.preventDefault();
                                                                                                                 if (
-                                                                                                                        confirm("Delete this list and all its items?")
+                                                                                                                        confirm(t('home.deleteConfirm'))
                                                                                                                 ) {
                                                                                                                         deleteList.mutate(list.externalId);
                                                                                                                 }

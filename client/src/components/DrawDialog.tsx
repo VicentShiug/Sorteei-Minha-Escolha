@@ -1,31 +1,50 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Dices, ArrowRight } from "lucide-react";
+import { Sparkles, Dices, ArrowRight, Calculator, Cpu, Search, Brain, Target, Shuffle } from "lucide-react";
 import type { Item } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
-interface DrawDialogProps {
-  items: Item[];
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onMarkSeen: (item: Item) => void;
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  dices: Dices,
+  calculator: Calculator,
+  cpu: Cpu,
+  sparkles: Sparkles,
+  search: Search,
+  brain: Brain,
+  target: Target,
+  shuffle: Shuffle,
+};
+
+interface ThinkingItem {
+  text: string;
+  icon: string;
 }
 
 export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDialogProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawnItem, setDrawnItem] = useState<Item | null>(null);
+  const [thinkingItem, setThinkingItem] = useState<ThinkingItem | null>(null);
+  const { t } = useTranslation();
 
   const unseenItems = items.filter(item => !item.isSeen);
+
+  const getRandomThinking = (): ThinkingItem => {
+    const thinkingKeys = Object.keys(t('draw.thinking', { returnObjects: true }) as Record<string, ThinkingItem>);
+    const randomKey = thinkingKeys[Math.floor(Math.random() * thinkingKeys.length)];
+    return t(`draw.thinking.${randomKey}`, { returnObjects: true }) as ThinkingItem;
+  };
 
   useEffect(() => {
     if (isOpen) {
       if (unseenItems.length === 0) {
         setDrawnItem(null);
+        setThinkingItem(null);
         return;
       }
       
-      // Animation sequence
+      setThinkingItem(getRandomThinking());
       setIsDrawing(true);
       setDrawnItem(null);
       
@@ -33,11 +52,13 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
         const randomIndex = Math.floor(Math.random() * unseenItems.length);
         setDrawnItem(unseenItems[randomIndex]);
         setIsDrawing(false);
-      }, 1200); // 1.2s suspense
+      }, 1200);
       
       return () => clearTimeout(timer);
     }
   }, [isOpen, unseenItems.length]);
+
+  const ThinkingIcon = thinkingItem ? iconMap[thinkingItem.icon] : Dices;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -56,10 +77,10 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
                 <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-6">
                   <Sparkles className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h2 className="text-2xl font-display font-medium mb-2">All caught up!</h2>
-                <p className="text-muted-foreground mb-8">You've completed every item in this list.</p>
+                <h2 className="text-2xl font-display font-medium mb-2">{t('draw.allCaughtUp')}</h2>
+                <p className="text-muted-foreground mb-8">{t('draw.completedAll')}</p>
                 <Button onClick={() => onOpenChange(false)} variant="outline" className="rounded-xl h-12 px-8">
-                  Close
+                  {t('draw.close')}
                 </Button>
               </motion.div>
             ) : isDrawing ? (
@@ -75,9 +96,11 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
                   transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                   className="w-20 h-20 rounded-full border-4 border-secondary border-t-primary flex items-center justify-center mb-8"
                 >
-                  <Dices className="w-8 h-8 text-primary/50 animate-pulse" />
+                  <ThinkingIcon className="w-8 h-8 text-primary/50 animate-pulse" />
                 </motion.div>
-                <h2 className="text-xl font-medium text-muted-foreground animate-pulse">Consulting the oracle...</h2>
+                <h2 className="text-xl font-medium text-muted-foreground animate-pulse">
+                  {thinkingItem?.text || t('draw.title')}
+                </h2>
               </motion.div>
             ) : drawnItem ? (
               <motion.div 
@@ -87,7 +110,7 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
                 className="flex flex-col items-center w-full"
               >
-                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">You should next consume</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">{t('draw.winner')}</span>
                 <h2 className="text-4xl sm:text-5xl font-display font-bold leading-tight mb-8 text-foreground">
                   {drawnItem.name}
                 </h2>
@@ -99,18 +122,17 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
                       onOpenChange(false);
                     }}
                   >
-                    Got it
+                    {t('home.gotIt')}
                   </Button>
                   <Button 
                     variant="secondary"
                     className="flex-1 rounded-xl h-14 text-base"
                     onClick={() => {
                       onOpenChange(false);
-                      // Slight delay to allow dialog to close smoothly before opening the next
                       setTimeout(() => onMarkSeen(drawnItem), 150); 
                     }}
                   >
-                    Mark as Done <ArrowRight className="w-4 h-4 ml-2" />
+                    {t('home.markAsDone')} <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
               </motion.div>
@@ -121,4 +143,11 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
       </DialogContent>
     </Dialog>
   );
+}
+
+interface DrawDialogProps {
+  items: Item[];
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onMarkSeen: (item: Item) => void;
 }

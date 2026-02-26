@@ -3,10 +3,13 @@ import { LayoutGrid, Globe, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSelector } from "./LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const [location, setLocation] = useLocation();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
@@ -34,17 +37,18 @@ export function Navbar() {
                 className="rounded-full px-4"
               >
                 <LayoutGrid className="w-4 h-4 mr-2" />
-                Minhas Listas
+                {t('nav.myLists')}
               </Button>
             </Link>
             <Button variant="ghost" size="sm" className="rounded-full px-4 text-muted-foreground cursor-not-allowed">
               <Globe className="w-4 h-4 mr-2" />
-              Listas Públicas
+              {t('nav.publicLists')}
             </Button>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
+          <LanguageSelector />
           <ThemeToggle />
           
           <div className="h-6 w-px bg-border/60 mx-1 hidden sm:block" />
@@ -61,7 +65,7 @@ export function Navbar() {
               size="icon"
               onClick={handleLogout}
               className="rounded-full text-muted-foreground hover:text-destructive transition-colors"
-              title="Sair"
+              title={t('nav.logout')}
             >
               <LogOut className="w-4 h-4" />
             </Button>

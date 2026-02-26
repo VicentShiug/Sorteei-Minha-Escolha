@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +19,7 @@ export default function Auth() {
   
   const { login, register } = useAuth();
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ export default function Auth() {
     
     if (!isLogin) {
       if (password !== confirmPassword) {
-        setError("Passwords do not match");
+        setError(t('auth.passwordMismatch'));
         return;
       }
       if (password.length < 6) {
@@ -54,7 +56,12 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome</CardTitle>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">S</span>
+            </div>
+            <CardTitle className="text-2xl font-display font-bold tracking-tight">Sorteei</CardTitle>
+          </div>
           <AnimatePresence mode="wait">
             <motion.div
               key={isLogin ? "login" : "register"}
@@ -64,7 +71,7 @@ export default function Auth() {
               transition={{ duration: 0.2 }}
             >
               <CardDescription>
-                {isLogin ? "Sign in to access your lists" : "Create an account to get started"}
+                {isLogin ? t('auth.login') : t('auth.register')}
               </CardDescription>
             </motion.div>
           </AnimatePresence>
@@ -77,7 +84,7 @@ export default function Auth() {
               className="flex-1 rounded-xl"
               onClick={() => setIsLogin(true)}
             >
-              Sign In
+              {t('auth.login')}
             </Button>
             <Button
               type="button"
@@ -85,7 +92,7 @@ export default function Auth() {
               className="flex-1 rounded-xl"
               onClick={() => setIsLogin(false)}
             >
-              Sign Up
+              {t('auth.register')}
             </Button>
           </div>
           
@@ -101,11 +108,11 @@ export default function Auth() {
                     transition={{ duration: 0.2 }}
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="name">Name</Label>
+                      <Label htmlFor="name">{t('auth.name')}</Label>
                       <Input
                         id="name"
                         type="text"
-                        placeholder="Your name"
+                        placeholder={t('auth.name')}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required={!isLogin}
@@ -117,7 +124,7 @@ export default function Auth() {
               </AnimatePresence>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -130,7 +137,7 @@ export default function Auth() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -152,7 +159,7 @@ export default function Auth() {
                     transition={{ duration: 0.2 }}
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
@@ -172,7 +179,7 @@ export default function Auth() {
               )}
               
               <Button type="submit" className="w-full rounded-xl h-12" disabled={isLoading}>
-                {isLoading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
+                {isLoading ? t('auth.loading') : isLogin ? t('auth.login') : t('auth.register')}
               </Button>
             </div>
           </form>

@@ -9,11 +9,13 @@ import { MarkSeenDialog } from "@/components/MarkSeenDialog";
 import { DrawDialog } from "@/components/DrawDialog";
 import type { Item } from "@shared/schema";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function ListDetails() {
   const params = useParams();
   const listId = params.id as string;
   const { data: list, isLoading } = useList(listId);
+  const { t } = useTranslation();
 
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [isDrawOpen, setIsDrawOpen] = useState(false);
@@ -71,7 +73,7 @@ export default function ListDetails() {
               className="h-16 px-8 rounded-2xl text-lg font-bold minimal-shadow hover:minimal-shadow-hover hover:-translate-y-1 transition-all bg-foreground text-background hover:bg-foreground/90"
             >
               <Shuffle className="w-6 h-6 mr-3" />
-              Draw Random
+              {t('home.drawWinner')}
             </Button>
           )}
         </header>
@@ -88,7 +90,7 @@ export default function ListDetails() {
           >
             <div className="flex items-center justify-center gap-2">
               <Circle className="w-4 h-4" />
-              Pending ({pendingItems.length})
+              {t('home.pending')} ({pendingItems.length})
             </div>
           </button>
           <button
@@ -101,7 +103,7 @@ export default function ListDetails() {
           >
             <div className="flex items-center justify-center gap-2">
               <CheckCircle2 className="w-4 h-4" />
-              Completed ({completedItems.length})
+              {t('home.completed')} ({completedItems.length})
             </div>
           </button>
         </div>
@@ -115,7 +117,7 @@ export default function ListDetails() {
               className="rounded-xl h-11 border-dashed border-2 hover:border-solid hover:bg-secondary/50"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Item
+              {t('listDetails.addItem')}
             </Button>
           </div>
         )}
@@ -132,8 +134,8 @@ export default function ListDetails() {
               >
                 <p className="text-muted-foreground text-lg">
                   {activeTab === 'pending' 
-                    ? (items.length === 0 ? "This list is empty. Add something!" : "You've finished everything! 🎉") 
-                    : "No completed items yet."}
+                    ? (items.length === 0 ? t('home.emptyListDescription') : t('home.allCaughtUp')) 
+                    : t('home.noCompletedItems')}
                 </p>
                 {activeTab === 'pending' && items.length === 0 && (
                   <Button 
@@ -141,7 +143,7 @@ export default function ListDetails() {
                     variant="ghost"
                     className="mt-4 text-primary"
                   >
-                    Add your first item
+                    {t('listDetails.addItem')}
                   </Button>
                 )}
               </motion.div>
