@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type CreateItemRequest, type UpdateItemRequest } from "@shared/routes";
+import { fetchWithAuthRetry } from "@/lib/api";
 import { z } from "zod";
 
 function parseWithLogging<T>(schema: z.ZodSchema<T>, data: unknown, label: string): T {
@@ -16,11 +17,10 @@ export function useCreateItem() {
   return useMutation({
     mutationFn: async (data: CreateItemRequest) => {
       const validated = api.items.create.input.parse(data);
-      const res = await fetch(api.items.create.path, {
+      const res = await fetchWithAuthRetry(api.items.create.path, {
         method: api.items.create.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
-        credentials: "include",
       });
       
       if (!res.ok) {
@@ -46,11 +46,10 @@ export function useUpdateItem(listExternalId: string) {
     mutationFn: async ({ id, data }: { id: string; data: UpdateItemRequest }) => {
       const validated = api.items.update.input.parse(data);
       const url = buildUrl(api.items.update.path, { id });
-      const res = await fetch(url, {
+      const res = await fetchWithAuthRetry(url, {
         method: api.items.update.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
-        credentials: "include",
       });
       
       if (!res.ok) {
@@ -76,9 +75,8 @@ export function useDeleteItem(listExternalId: string) {
   return useMutation({
     mutationFn: async (id: string) => {
       const url = buildUrl(api.items.delete.path, { id });
-      const res = await fetch(url, {
+      const res = await fetchWithAuthRetry(url, {
         method: api.items.delete.method,
-        credentials: "include",
       });
       if (res.status === 404) throw new Error("Item not found");
       if (!res.ok) throw new Error("Failed to delete item");

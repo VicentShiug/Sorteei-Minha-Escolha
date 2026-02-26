@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl, type CreateListRequest, type UpdateListRequest, type ListResponse } from "@shared/routes";
+import { fetchWithAuthRetry } from "@/lib/api";
 import { z } from "zod";
 
 function parseWithLogging<T>(schema: z.ZodSchema<T>, data: unknown, label: string): T {
@@ -15,7 +16,7 @@ export function useLists() {
   return useQuery({
     queryKey: [api.lists.list.path],
     queryFn: async () => {
-      const res = await fetch(api.lists.list.path, { credentials: "include" });
+      const res = await fetchWithAuthRetry(api.lists.list.path);
       if (!res.ok) throw new Error("Failed to fetch lists");
       const data = await res.json();
       return parseWithLogging(api.lists.list.responses[200], data, "lists.list");
@@ -29,7 +30,7 @@ export function useList(id: string) {
     queryKey: [api.lists.get.path, id],
     queryFn: async () => {
       const url = buildUrl(api.lists.get.path, { id });
-      const res = await fetch(url, { credentials: "include" });
+      const res = await fetchWithAuthRetry(url);
       if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch list");
       const data = await res.json();
@@ -44,11 +45,10 @@ export function useCreateList() {
   return useMutation({
     mutationFn: async (data: CreateListRequest) => {
       const validated = api.lists.create.input.parse(data);
-      const res = await fetch(api.lists.create.path, {
+      const res = await fetchWithAuthRetry(api.lists.create.path, {
         method: api.lists.create.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
-        credentials: "include",
       });
       
       if (!res.ok) {
@@ -74,11 +74,10 @@ export function useUpdateList() {
     mutationFn: async ({ id, data }: { id: string; data: UpdateListRequest }) => {
       const validated = api.lists.update.input.parse(data);
       const url = buildUrl(api.lists.update.path, { id });
-      const res = await fetch(url, {
+      const res = await fetchWithAuthRetry(url, {
         method: api.lists.update.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
-        credentials: "include",
       });
       
       if (!res.ok) {
@@ -105,9 +104,8 @@ export function useDeleteList() {
   return useMutation({
     mutationFn: async (id: string) => {
       const url = buildUrl(api.lists.delete.path, { id });
-      const res = await fetch(url, {
+      const res = await fetchWithAuthRetry(url, {
         method: api.lists.delete.method,
-        credentials: "include",
       });
       if (res.status === 404) throw new Error("List not found");
       if (!res.ok) throw new Error("Failed to delete list");
