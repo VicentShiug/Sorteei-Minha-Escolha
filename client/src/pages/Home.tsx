@@ -4,6 +4,7 @@ import { Plus, ListFilter, Trash2, Dices, Cpu, Brain, Shuffle, Pencil } from "lu
 import { Button } from "@/components/ui/button";
 import { useLists, useDeleteList } from "@/hooks/use-lists";
 import { ListFormDialog } from "@/components/ListFormDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import type { List } from "@shared/schema";
@@ -27,6 +28,8 @@ export default function Home() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [isEditListOpen, setIsEditListOpen] = useState(false);
+  const [listToDelete, setListToDelete] = useState<List | null>(null);
+  const [isDeleteListOpen, setIsDeleteListOpen] = useState(false);
   const { t } = useTranslation();
   
   const [titleItem, setTitleItem] = useState<TitleItem | null>(null);
@@ -148,11 +151,8 @@ export default function Home() {
                             className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
                             onClick={(e) => {
                               e.preventDefault();
-                              if (
-                                confirm(t('home.deleteConfirm'))
-                              ) {
-                                deleteList.mutate(list.externalId);
-                              }
+                              setListToDelete(list);
+                              setIsDeleteListOpen(true);
                             }}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -202,6 +202,22 @@ export default function Home() {
         isOpen={isEditListOpen} 
         onOpenChange={setIsEditListOpen} 
         list={selectedList || undefined}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteListOpen}
+        onOpenChange={setIsDeleteListOpen}
+        onConfirm={() => {
+          if (listToDelete) {
+            deleteList.mutate(listToDelete.externalId);
+            setIsDeleteListOpen(false);
+            setListToDelete(null);
+          }
+        }}
+        title={t('common.deleteList')}
+        description={t('common.confirmDelete')}
+        variant="destructive"
+        isPending={deleteList.isPending}
       />
     </div>
   );

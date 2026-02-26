@@ -3,9 +3,11 @@ import { Check, Trash2, Edit3, MessageSquare, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./StarRating";
 import { useDeleteItem, useUpdateItem } from "@/hooks/use-items";
+import { ConfirmDialog } from "./ConfirmDialog";
 import type { Item } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface ItemCardProps {
   item: Item;
@@ -16,8 +18,10 @@ interface ItemCardProps {
 
 export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }: ItemCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const deleteItem = useDeleteItem(listExternalId);
   const updateItem = useUpdateItem(listExternalId);
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     setIsDeleting(true);
@@ -122,14 +126,27 @@ export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }:
             size="icon"
             variant="ghost"
             className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleDelete}
-            disabled={deleteItem.isPending || isDeleting}
+            onClick={() => setIsDeleteOpen(true)}
+            disabled={deleteItem.isPending}
             title="Delete item"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={() => {
+          deleteItem.mutate(item.externalId);
+          setIsDeleteOpen(false);
+        }}
+        title={t('common.deleteItem')}
+        description={t('common.confirmDelete')}
+        variant="destructive"
+        isPending={deleteItem.isPending}
+      />
     </motion.div>
   );
 }
