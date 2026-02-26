@@ -20,6 +20,7 @@ export function useLists() {
       const data = await res.json();
       return parseWithLogging(api.lists.list.responses[200], data, "lists.list");
     },
+    refetchOnMount: true,
   });
 }
 

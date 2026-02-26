@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { ArrowLeft, Plus, Shuffle, CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useList } from "@/hooks/use-lists";
+import { queryClient } from "@/lib/queryClient";
+import { api } from "@shared/routes";
 import { ItemCard } from "@/components/ItemCard";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { MarkSeenDialog } from "@/components/MarkSeenDialog";
@@ -25,6 +27,12 @@ export default function ListDetails() {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
+
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({ queryKey: [api.lists.list.path] });
+    };
+  }, []);
 
   if (isLoading) {
     return (
