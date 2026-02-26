@@ -18,6 +18,16 @@
   "home": {
     "title": "Jogando os Dados",
     "subtitle": "Organize e sorteie o que você vai consumir a seguir.",
+    "titles": {
+      "0": { "title": "Variáveis carregadas", "subtitle": "Organize suas listas e sorteie com as variáveis e descubra seu próximo conteúdo.", "icon": "cpu" },
+      "1": { "title": "O D20 está a mão", "subtitle": "Organize suas listas e sorteie com o nosso D20 e tenha seu próximo conteúdo decidido.", "icon": "dices" },
+      "2": { "title": "RNG online", "subtitle": "Organize suas listas e deixe o random number generator decidir seu próximo conteúdo.", "icon": "cpu" },
+      "3": { "title": "Processando escolhas", "subtitle": "Organize suas listas e deixe o sistema processar e eleger seu próximo conteúdo.", "icon": "brain" },
+      "4": { "title": "Dados lançados", "subtitle": "Organize suas listas e lance os dados para descobrir seu próximo conteúdo.", "icon": "dices" },
+      "5": { "title": "IA em ação", "subtitle": "Organize suas listas e deixe a inteligência artificial escolher seu próximo conteúdo.", "icon": "brain" },
+      "6": { "title": "Sorteando opções", "subtitle": "Organize suas listas e deixe a sorte escolher seu próximo conteúdo.", "icon": "shuffle" },
+      "7": { "title": "Calculando resultados", "subtitle": "Organize suas listas e deixe o algoritmo calcular seu próximo conteúdo.", "icon": "cpu" }
+    },
     "createList": "Criar Lista",
     "noLists": "Nenhuma lista ainda",
     "noListsDescription": "Crie sua primeira lista para começar a organizar seu conteúdo.",

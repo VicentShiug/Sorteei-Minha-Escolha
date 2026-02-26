@@ -18,6 +18,16 @@
 	"home": {
 		"title": "Rolling the Dice",
 		"subtitle": "Organize and sort what you'll consume next.",
+		"titles": {
+			"0": { "title": "Variables loaded", "subtitle": "Organize your lists and roll with variables to discover your next content.", "icon": "cpu" },
+			"1": { "title": "D20 in hand", "subtitle": "Organize your lists and roll our D20 to have your next content decided.", "icon": "dices" },
+			"2": { "title": "RNG online", "subtitle": "Organize your lists and let the random number generator decide your next content.", "icon": "cpu" },
+			"3": { "title": "Processing choices", "subtitle": "Organize your lists and let the system process and choose your next content.", "icon": "brain" },
+			"4": { "title": "Dice cast", "subtitle": "Organize your lists and roll the dice to discover your next content.", "icon": "dices" },
+			"5": { "title": "AI in action", "subtitle": "Organize your lists and let artificial intelligence choose your next content.", "icon": "brain" },
+			"6": { "title": "Sorting options", "subtitle": "Organize your lists and let luck choose your next content.", "icon": "shuffle" },
+			"7": { "title": "Calculating results", "subtitle": "Organize your lists and let the algorithm calculate your next content.", "icon": "cpu" }
+		},
 		"createList": "Create List",
 		"noLists": "No lists yet",
 		"noListsDescription": "Create your first list to start organizing your content.",
