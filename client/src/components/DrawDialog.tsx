@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Dices, ArrowRight, Calculator, Cpu, Search, Brain, Target, Shuffle } from "lucide-react";
+import { Sparkles, Dices, ArrowRight, Calculator, Cpu, Search, Brain, Target, Shuffle, RefreshCw } from "lucide-react";
 import type { Item } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -20,41 +20,59 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 interface ThinkingItem {
   text: string;
   icon: string;
+  winnerText: string;
 }
 
 export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDialogProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawnItem, setDrawnItem] = useState<Item | null>(null);
   const [thinkingItem, setThinkingItem] = useState<ThinkingItem | null>(null);
+  const [thinkingKey, setThinkingKey] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const unseenItems = items.filter(item => !item.isSeen);
 
-  const getRandomThinking = (): ThinkingItem => {
-    const thinkingKeys = Object.keys(t('draw.thinking', { returnObjects: true }) as Record<string, ThinkingItem>);
-    const randomKey = thinkingKeys[Math.floor(Math.random() * thinkingKeys.length)];
-    return t(`draw.thinking.${randomKey}`, { returnObjects: true }) as ThinkingItem;
-  };
+  const getRandomThinking = useCallback((currentKey: string | null): { item: ThinkingItem; key: string } => {
+    const thinkingData = t('draw.thinking', { returnObjects: true }) as Record<string, ThinkingItem>;
+    const thinkingKeys = Object.keys(thinkingData);
+    
+    // Filter out current key to avoid repetition
+    const availableKeys = currentKey 
+      ? thinkingKeys.filter(key => key !== currentKey)
+      : thinkingKeys;
+    
+    const randomKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+    const item = thinkingData[randomKey];
+    
+    return { item, key: randomKey };
+  }, [t]);
+
+  const drawRandom = useCallback(() => {
+    const { item, key } = getRandomThinking(thinkingKey);
+    setThinkingItem(item);
+    setThinkingKey(key);
+    setIsDrawing(true);
+    setDrawnItem(null);
+    
+    const timer = setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * unseenItems.length);
+      setDrawnItem(unseenItems[randomIndex]);
+      setIsDrawing(false);
+    }, 1200);
+    
+    return () => clearTimeout(timer);
+  }, [unseenItems, thinkingKey, getRandomThinking]);
 
   useEffect(() => {
     if (isOpen) {
       if (unseenItems.length === 0) {
         setDrawnItem(null);
         setThinkingItem(null);
+        setThinkingKey(null);
         return;
       }
       
-      setThinkingItem(getRandomThinking());
-      setIsDrawing(true);
-      setDrawnItem(null);
-      
-      const timer = setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * unseenItems.length);
-        setDrawnItem(unseenItems[randomIndex]);
-        setIsDrawing(false);
-      }, 1200);
-      
-      return () => clearTimeout(timer);
+      drawRandom();
     }
   }, [isOpen, unseenItems.length]);
 
@@ -63,7 +81,7 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md rounded-3xl border-none minimal-shadow-hover p-0 overflow-hidden bg-background">
-        <div className="relative p-8 sm:p-10 flex flex-col items-center text-center min-h-[350px] justify-center">
+        <div className="relative p-6 sm:p-8 flex flex-col items-center text-center min-h-[400px] sm:min-h-[320px] justify-center">
           
           <AnimatePresence mode="wait">
             {unseenItems.length === 0 ? (
@@ -110,29 +128,41 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
                 className="flex flex-col items-center w-full"
               >
-                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">{t('draw.winner')}</span>
-                <h2 className="text-4xl sm:text-5xl font-display font-bold leading-tight mb-8 text-foreground">
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">{thinkingItem?.winnerText || t('draw.winner')}</span>
+                <h2 className="text-3xl sm:text-4xl font-display font-bold leading-tight mb-6 text-foreground">
                   {drawnItem.name}
                 </h2>
                 
-                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3 w-full">
                   <Button 
-                    className="flex-1 rounded-xl h-14 text-base"
-                    onClick={() => {
-                      onOpenChange(false);
-                    }}
+                    variant="outline"
+                    className="flex-1 min-w-[140px] rounded-xl h-12 sm:h-14 text-xs sm:text-sm"
+                    onClick={() => drawRandom()}
+                    disabled={unseenItems.length <= 1}
                   >
-                    {t('home.gotIt')}
+                    <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="hidden sm:inline">{t('draw.drawAgain')}</span>
+                    <span className="sm:hidden">Sortear</span>
                   </Button>
                   <Button 
                     variant="secondary"
-                    className="flex-1 rounded-xl h-14 text-base"
+                    className="flex-1 min-w-[140px] rounded-xl h-12 sm:h-14 text-xs sm:text-sm"
                     onClick={() => {
                       onOpenChange(false);
                       setTimeout(() => onMarkSeen(drawnItem), 150); 
                     }}
                   >
-                    {t('home.markAsDone')} <ArrowRight className="w-4 h-4 ml-2" />
+                    <span className="hidden sm:inline">{t('home.markAsDone')}</span>
+                    <span className="sm:hidden">Feito</span>
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+                  </Button>
+                  <Button 
+                    className="flex-1 min-w-[100px] rounded-xl h-12 sm:h-14 text-xs sm:text-sm"
+                    onClick={() => {
+                      onOpenChange(false);
+                    }}
+                  >
+                    {t('home.gotIt')}
                   </Button>
                 </div>
               </motion.div>

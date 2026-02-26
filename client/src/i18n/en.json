@@ -69,14 +69,14 @@
 	"draw": {
 		"title": "Drawing...",
 		"thinking": {
-			"0": { "text": "Rolling the dice...", "icon": "dices" },
-			"1": { "text": "Doing the math...", "icon": "calculator" },
-			"2": { "text": "Beep boop bop...", "icon": "cpu" },
-			"3": { "text": "Consulting the universe...", "icon": "sparkles" },
-			"4": { "text": "Finding your destiny...", "icon": "search" },
-			"5": { "text": "Analyzing possibilities...", "icon": "brain" },
-			"6": { "text": "Adjusting the aim...", "icon": "target" },
-			"7": { "text": "Mixing energies...", "icon": "shuffle" }
+			"0": { "text": "Rolling the dice...", "icon": "dices", "winnerText": "The dice have spoken:" },
+			"1": { "text": "Doing the math...", "icon": "calculator", "winnerText": "The math says:" },
+			"2": { "text": "Beep boop bop...", "icon": "cpu", "winnerText": "The beep boop chooser picked:" },
+			"3": { "text": "Consulting the universe...", "icon": "sparkles", "winnerText": "The universe answers:" },
+			"4": { "text": "Finding your destiny...", "icon": "search", "winnerText": "Your destiny is:" },
+			"5": { "text": "Analyzing possibilities...", "icon": "brain", "winnerText": "The best option is:" },
+			"6": { "text": "Adjusting the aim...", "icon": "target", "winnerText": "The target points to:" },
+			"7": { "text": "Mixing energies...", "icon": "shuffle", "winnerText": "The energies reveal:" }
 		},
 		"winner": "The winner is:",
 		"youShouldNext": "You should next consume",

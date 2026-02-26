@@ -69,14 +69,14 @@
   "draw": {
     "title": "Sorteando...",
     "thinking": {
-      "0": { "text": "Jogando os dados...", "icon": "dices" },
-      "1": { "text": "Fazendo cálculos matemáticos...", "icon": "calculator" },
-      "2": { "text": "Fazendo bip bop bup...", "icon": "cpu" },
-      "3": { "text": "Consultando o universo...", "icon": "sparkles" },
-      "4": { "text": "Procurando o destino...", "icon": "search" },
-      "5": { "text": "Analisando as possibilidades...", "icon": "brain" },
-      "6": { "text": "Ajustando a mira...", "icon": "target" },
-      "7": { "text": "Misturando as energias...", "icon": "shuffle" }
+      "0": { "text": "Jogando os dados...", "icon": "dices", "winnerText": "O resultado dos dados foi:" },
+      "1": { "text": "Fazendo cálculos matemáticos...", "icon": "calculator", "winnerText": "O cálculo indicou:" },
+      "2": { "text": "Fazendo bip bop bup...", "icon": "cpu", "winnerText": "O bip bop bupador escolheu:" },
+      "3": { "text": "Consultando o universo...", "icon": "sparkles", "winnerText": "A resposta do universo foi:" },
+      "4": { "text": "Procurando o destino...", "icon": "search", "winnerText": "O destino escolheu:" },
+      "5": { "text": "Analisando as possibilidades...", "icon": "brain", "winnerText": "A melhor opção é:" },
+      "6": { "text": "Ajustando a mira...", "icon": "target", "winnerText": "A mira indicou:" },
+      "7": { "text": "Misturando as energias...", "icon": "shuffle", "winnerText": "As energias revelam:" }
     },
     "winner": "O sorteado é:",
     "youShouldNext": "Você deve consumir a seguir",
