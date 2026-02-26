@@ -26,11 +26,12 @@ export interface IStorage {
   // Lists
   getLists(userId: number): Promise<(List & { items: Item[] })[]>;
   getListByExternalId(externalId: string, userId: number): Promise<(List & { items: Item[] }) | undefined>;
+  getListIdByExternalId(externalId: string, userId: number): Promise<number | undefined>;
   createList(list: InsertList): Promise<List>;
   deleteList(externalId: string, userId: number): Promise<void>;
 
   // Items
-  createItem(item: InsertItem): Promise<Item>;
+  createItem(item: { name: string; listExternalId: string }, userId: number): Promise<Item>;
   updateItem(externalId: string, updates: UpdateItemRequest): Promise<Item>;
   deleteItem(externalId: string, userId: number): Promise<void>;
 }
@@ -106,6 +107,14 @@ export class DatabaseStorage implements IStorage {
     return list;
   }
 
+  async getListIdByExternalId(externalId: string, userId: number): Promise<number | undefined> {
+    const list = await db.query.lists.findFirst({
+      where: and(eq(lists.externalId, externalId), eq(lists.userId, userId)),
+      columns: { id: true }
+    });
+    return list?.id;
+  }
+
   async createList(list: InsertList): Promise<List> {
     const [newList] = await db.insert(lists).values(list).returning();
     return newList;
@@ -122,8 +131,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Items
-  async createItem(item: InsertItem): Promise<Item> {
-    const [newItem] = await db.insert(items).values(item).returning();
+  async createItem(item: { name: string; listExternalId: string }, userId: number): Promise<Item> {
+    const listId = await this.getListIdByExternalId(item.listExternalId, userId);
+    if (!listId) throw new Error("List not found");
+    
+    const [newItem] = await db.insert(items).values({ name: item.name, listId }).returning();
     return newItem;
   }
 

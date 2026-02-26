@@ -15,12 +15,7 @@ export function useCreateItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateItemRequest) => {
-      const payload = {
-        ...data,
-        listId: Number(data.listId)
-      };
-      
-      const validated = api.items.create.input.parse(payload);
+      const validated = api.items.create.input.parse(data);
       const res = await fetch(api.items.create.path, {
         method: api.items.create.method,
         headers: { "Content-Type": "application/json" },
@@ -40,7 +35,7 @@ export function useCreateItem() {
       return parseWithLogging(api.items.create.responses[201], responseData, "items.create");
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, variables.listId] });
+      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, variables.listExternalId] });
     },
   });
 }

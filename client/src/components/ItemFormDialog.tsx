@@ -8,12 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
 interface ItemFormDialogProps {
-  listId?: number;
+  listExternalId?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ItemFormDialog({ listId, isOpen, onOpenChange }: ItemFormDialogProps) {
+export function ItemFormDialog({ listExternalId, isOpen, onOpenChange }: ItemFormDialogProps) {
   const [name, setName] = useState("");
   const createItem = useCreateItem();
   const { toast } = useToast();
@@ -21,10 +21,10 @@ export function ItemFormDialog({ listId, isOpen, onOpenChange }: ItemFormDialogP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !listId) return;
+    if (!name.trim() || !listExternalId) return;
 
     createItem.mutate(
-      { name: name.trim(), listId },
+      { name: name.trim(), listExternalId },
       {
         onSuccess: () => {
           toast({ title: t('common.success') });

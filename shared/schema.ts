@@ -64,8 +64,8 @@ export const itemsRelations = relations(items, ({ one }) => ({
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, externalId: true, createdAt: true });
 export const insertRefreshTokenSchema = createInsertSchema(refreshTokens).omit({ id: true, externalId: true, createdAt: true });
 export const insertListSchema = createInsertSchema(lists).omit({ id: true, externalId: true, createdAt: true });
-export const insertItemSchema = createInsertSchema(items).omit({ id: true, externalId: true, createdAt: true, isSeen: true, rating: true, review: true }).extend({
-  listId: z.coerce.number()
+export const insertItemSchema = createInsertSchema(items).omit({ id: true, externalId: true, createdAt: true, isSeen: true, rating: true, review: true, listId: true }).extend({
+  listExternalId: z.string().uuid()
 });
 export const updateItemSchema = createInsertSchema(items).omit({ id: true, externalId: true, createdAt: true, listId: true }).partial().extend({
   rating: z.coerce.number().optional().nullable(),

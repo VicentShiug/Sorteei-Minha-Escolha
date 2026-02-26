@@ -51,13 +51,13 @@ export async function registerRoutes(
       const userLists = await storage.getLists(user.id);
       if (userLists.length === 0) {
         const moviesList = await storage.createList({ userId: user.id, name: "Movies to Watch", description: "A list of movies I want to see" });
-        await storage.createItem({ listId: moviesList.id, name: "Inception" });
-        await storage.createItem({ listId: moviesList.id, name: "Interstellar" });
-        await storage.createItem({ listId: moviesList.id, name: "The Matrix" });
+        await storage.createItem({ listExternalId: moviesList.externalId, name: "Inception" }, user.id);
+        await storage.createItem({ listExternalId: moviesList.externalId, name: "Interstellar" }, user.id);
+        await storage.createItem({ listExternalId: moviesList.externalId, name: "The Matrix" }, user.id);
         
         const booksList = await storage.createList({ userId: user.id, name: "Books to Read", description: "My reading backlog" });
-        await storage.createItem({ listId: booksList.id, name: "1984" });
-        await storage.createItem({ listId: booksList.id, name: "Brave New World" });
+        await storage.createItem({ listExternalId: booksList.externalId, name: "1984" }, user.id);
+        await storage.createItem({ listExternalId: booksList.externalId, name: "Brave New World" }, user.id);
       }
       
       res.status(201).json({ externalId: user.externalId, email: user.email, name: user.name });
@@ -239,7 +239,12 @@ export async function registerRoutes(
   app.post(api.items.create.path, authenticate, async (req, res) => {
     try {
       const input = api.items.create.input.parse(req.body);
-      const item = await storage.createItem(input);
+      const authReq = req as AuthenticatedRequest;
+      const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      const item = await storage.createItem(input, user.id);
       res.status(201).json(toApiResponse(item));
     } catch (err) {
       if (err instanceof z.ZodError) {

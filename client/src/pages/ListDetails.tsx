@@ -163,7 +163,7 @@ export default function ListDetails() {
 
       {/* Dialogs */}
       <ItemFormDialog 
-        listId={list?.id} 
+        listExternalId={list?.externalId} 
         isOpen={isAddItemOpen} 
         onOpenChange={setIsAddItemOpen} 
       />
