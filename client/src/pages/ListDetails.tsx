@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, Plus, Shuffle, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, Plus, Shuffle, CheckCircle2, Circle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useList } from "@/hooks/use-lists";
 import { queryClient } from "@/lib/queryClient";
@@ -9,6 +9,8 @@ import { ItemCard } from "@/components/ItemCard";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { MarkSeenDialog } from "@/components/MarkSeenDialog";
 import { DrawDialog } from "@/components/DrawDialog";
+import { ListFormDialog } from "@/components/ListFormDialog";
+import { EditItemDialog } from "@/components/EditItemDialog";
 import type { Item } from "@shared/schema";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -24,6 +26,9 @@ export default function ListDetails() {
   
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isMarkSeenOpen, setIsMarkSeenOpen] = useState(false);
+  const [isEditItemMode, setIsEditItemMode] = useState(false);
+  const [isEditListOpen, setIsEditListOpen] = useState(false);
+  const [isEditPendingItemOpen, setIsEditPendingItemOpen] = useState(false);
 
   // Tab state
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
@@ -59,7 +64,19 @@ export default function ListDetails() {
 
   const handleMarkSeenClick = (item: Item) => {
     setSelectedItem(item);
+    setIsEditItemMode(false);
     setIsMarkSeenOpen(true);
+  };
+
+  const handleEditItemClick = (item: Item) => {
+    if (item.isSeen) {
+      setSelectedItem(item);
+      setIsEditItemMode(true);
+      setIsMarkSeenOpen(true);
+    } else {
+      setSelectedItem(item);
+      setIsEditPendingItemOpen(true);
+    }
   };
 
   return (
@@ -68,7 +85,21 @@ export default function ListDetails() {
         {/* List Header & Hero Action */}
         <header className="mb-12 text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-8">
           <div className="flex-1">
-            <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight mb-4">{list.name}</h1>
+            <div className="flex items-center gap-4 mb-4">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="w-6 h-6" />
+              </Link>
+              <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight">{list.name}</h1>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full"
+                onClick={() => setIsEditListOpen(true)}
+                title="Edit list"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+            </div>
             {list.description && (
               <p className="text-lg text-muted-foreground">{list.description}</p>
             )}
@@ -162,6 +193,7 @@ export default function ListDetails() {
                   item={item}
                   listExternalId={list?.externalId || ""} 
                   onMarkSeenClick={handleMarkSeenClick}
+                  onEditClick={handleEditItemClick}
                 />
               ))
             )}
@@ -181,6 +213,14 @@ export default function ListDetails() {
         item={selectedItem}
         isOpen={isMarkSeenOpen}
         onOpenChange={setIsMarkSeenOpen}
+        isEditMode={isEditItemMode}
+      />
+
+      <EditItemDialog
+        item={selectedItem}
+        listExternalId={list?.externalId}
+        isOpen={isEditPendingItemOpen}
+        onOpenChange={setIsEditPendingItemOpen}
       />
 
       <DrawDialog
@@ -188,6 +228,12 @@ export default function ListDetails() {
         isOpen={isDrawOpen}
         onOpenChange={setIsDrawOpen}
         onMarkSeen={handleMarkSeenClick}
+      />
+
+      <ListFormDialog
+        isOpen={isEditListOpen}
+        onOpenChange={setIsEditListOpen}
+        list={list}
       />
     </div>
   );

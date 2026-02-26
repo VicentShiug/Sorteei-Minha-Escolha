@@ -54,7 +54,12 @@
 		"winner": "Winner!",
 		"itemName": "Item name",
 		"itemNamePlaceholder": "Enter item name...",
-		"emptyItemName": "Item name is required"
+		"emptyItemName": "Item name is required",
+		"editItem": "Edit Item",
+		"editList": "Edit List",
+		"markedAsCompleted": "Marked as completed",
+		"itemUpdated": "Item updated",
+		"editItemSuccess": "Changes saved for \"{{name}}\""
 	},
 	"auth": {
 		"login": "Login",

@@ -5,7 +5,7 @@ import {
   type InsertRefreshToken, type RefreshToken,
   type InsertList, type List,
   type InsertItem, type Item,
-  type UpdateItemRequest
+  type UpdateItemRequest, type UpdateListRequest
 } from "@shared/schema";
 import { eq, and, exists } from "drizzle-orm";
 import { hashPassword } from "./auth";
@@ -28,6 +28,7 @@ export interface IStorage {
   getListByExternalId(externalId: string, userId: number): Promise<(List & { items: Item[] }) | undefined>;
   getListIdByExternalId(externalId: string, userId: number): Promise<number | undefined>;
   createList(list: InsertList): Promise<List>;
+  updateList(externalId: string, userId: number, updates: UpdateListRequest): Promise<List | undefined>;
   deleteList(externalId: string, userId: number): Promise<void>;
 
   // Items
@@ -118,6 +119,19 @@ export class DatabaseStorage implements IStorage {
   async createList(list: InsertList): Promise<List> {
     const [newList] = await db.insert(lists).values(list).returning();
     return newList;
+  }
+
+  async updateList(externalId: string, userId: number, updates: UpdateListRequest): Promise<List | undefined> {
+    const list = await db.query.lists.findFirst({
+      where: and(eq(lists.externalId, externalId), eq(lists.userId, userId))
+    });
+    if (!list) return undefined;
+    
+    const [updated] = await db.update(lists)
+      .set(updates)
+      .where(eq(lists.id, list.id))
+      .returning();
+    return updated;
   }
 
   async deleteList(externalId: string, userId: number): Promise<void> {

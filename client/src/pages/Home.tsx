@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "wouter";
-import { Plus, ListFilter, Trash2, Dices, Cpu, Brain, Shuffle } from "lucide-react";
+import { Plus, ListFilter, Trash2, Dices, Cpu, Brain, Shuffle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLists, useDeleteList } from "@/hooks/use-lists";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import type { List } from "@shared/schema";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   dices: Dices,
@@ -24,6 +25,8 @@ export default function Home() {
   const { data: lists, isLoading } = useLists();
   const deleteList = useDeleteList();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedList, setSelectedList] = useState<List | null>(null);
+  const [isEditListOpen, setIsEditListOpen] = useState(false);
   const { t } = useTranslation();
   
   const [titleItem, setTitleItem] = useState<TitleItem | null>(null);
@@ -126,21 +129,35 @@ export default function Home() {
                           <ListFilter className="w-6 h-6" />
                         </div>
 
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (
-                              confirm(t('home.deleteConfirm'))
-                            ) {
-                              deleteList.mutate(list.externalId);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary transition-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setSelectedList(list);
+                              setIsEditListOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (
+                                confirm(t('home.deleteConfirm'))
+                              ) {
+                                deleteList.mutate(list.externalId);
+                              }
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="relative z-10 flex-1 flex flex-col">
@@ -180,6 +197,12 @@ export default function Home() {
       </main>
 
       <ListFormDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      
+      <ListFormDialog 
+        isOpen={isEditListOpen} 
+        onOpenChange={setIsEditListOpen} 
+        list={selectedList || undefined}
+      />
     </div>
   );
 }

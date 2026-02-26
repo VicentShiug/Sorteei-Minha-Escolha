@@ -64,6 +64,7 @@ export const itemsRelations = relations(items, ({ one }) => ({
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, externalId: true, createdAt: true });
 export const insertRefreshTokenSchema = createInsertSchema(refreshTokens).omit({ id: true, externalId: true, createdAt: true });
 export const insertListSchema = createInsertSchema(lists).omit({ id: true, externalId: true, createdAt: true });
+export const updateListSchema = createInsertSchema(lists).omit({ id: true, externalId: true, createdAt: true, userId: true }).partial();
 export const insertItemSchema = createInsertSchema(items).omit({ id: true, externalId: true, createdAt: true, isSeen: true, rating: true, review: true, listId: true }).extend({
   listExternalId: z.string().uuid()
 });
@@ -83,7 +84,7 @@ export type Item = typeof items.$inferSelect;
 export type InsertItem = z.infer<typeof insertItemSchema>;
 
 export type CreateListRequest = InsertList;
-export type UpdateListRequest = Partial<InsertList>;
+export type UpdateListRequest = z.infer<typeof updateListSchema>;
 
 export type CreateItemRequest = InsertItem;
 export type UpdateItemRequest = z.infer<typeof updateItemSchema>;

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type CreateListRequest, type ListResponse } from "@shared/routes";
+import { api, buildUrl, type CreateListRequest, type UpdateListRequest, type ListResponse } from "@shared/routes";
 import { z } from "zod";
 
 function parseWithLogging<T>(schema: z.ZodSchema<T>, data: unknown, label: string): T {
@@ -64,6 +64,38 @@ export function useCreateList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.lists.list.path] });
+    },
+  });
+}
+
+export function useUpdateList() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateListRequest }) => {
+      const validated = api.lists.update.input.parse(data);
+      const url = buildUrl(api.lists.update.path, { id });
+      const res = await fetch(url, {
+        method: api.lists.update.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validated),
+        credentials: "include",
+      });
+      
+      if (!res.ok) {
+        if (res.status === 400) {
+          const err = await res.json();
+          throw new Error(err.message || "Validation failed");
+        }
+        if (res.status === 404) throw new Error("List not found");
+        throw new Error("Failed to update list");
+      }
+      
+      const responseData = await res.json();
+      return parseWithLogging(api.lists.update.responses[200], responseData, "lists.update");
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [api.lists.list.path] });
+      queryClient.invalidateQueries({ queryKey: [api.lists.get.path, variables.id] });
     },
   });
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { StarRating } from "./StarRating";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { Item } from "@shared/schema";
 import confetti from "canvas-confetti";
 
@@ -14,15 +15,26 @@ interface MarkSeenDialogProps {
   listId?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  isEditMode?: boolean;
 }
 
-export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenDialogProps) {
+export function MarkSeenDialog({ item, listId, isOpen, onOpenChange, isEditMode = false }: MarkSeenDialogProps) {
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState("");
   const updateItem = useUpdateItem(listId || "");
   const { toast } = useToast();
+  const { t } = useTranslation();
 
-  // Reset state when dialog opens for a new item
+  useEffect(() => {
+    if (isOpen && isEditMode && item) {
+      setRating(item.rating || 0);
+      setReview(item.review || "");
+    } else if (!isOpen) {
+      setRating(0);
+      setReview("");
+    }
+  }, [isOpen, isEditMode, item]);
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setRating(0);
@@ -34,27 +46,41 @@ export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenD
   const handleSubmit = () => {
     if (!item || !listId) return;
 
-    updateItem.mutate(
-      {
-        id: item.externalId,
-        data: {
+    const data = isEditMode
+      ? {
+          rating: rating > 0 ? rating : undefined,
+          review: review.trim() || undefined,
+        }
+      : {
           isSeen: true,
           rating: rating > 0 ? rating : undefined,
           review: review.trim() || undefined,
-        },
+        };
+
+    updateItem.mutate(
+      {
+        id: item.externalId,
+        data,
       },
       {
         onSuccess: () => {
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#171717', '#a3a3a3', '#e5e5e5'] // Minimal monochrome confetti
-          });
-          toast({
-            title: "Marked as completed",
-            description: `You finished "${item.name}"!`,
-          });
+          if (!isEditMode) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#171717', '#a3a3a3', '#e5e5e5']
+            });
+            toast({
+              title: t('listDetails.markedAsCompleted'),
+              description: t('listDetails.editItemSuccess', { name: item.name }),
+            });
+          } else {
+            toast({
+              title: t('listDetails.itemUpdated'),
+              description: t('listDetails.editItemSuccess', { name: item.name }),
+            });
+          }
           handleOpenChange(false);
         },
       }
@@ -67,9 +93,13 @@ export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenD
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md rounded-2xl border-none minimal-shadow-hover">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Mark as Done</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{isEditMode ? "Edit Details" : "Mark as Done"}</DialogTitle>
           <DialogDescription className="text-base mt-2">
-            You've completed <span className="font-medium text-foreground">{item.name}</span>. How was it?
+            {isEditMode ? (
+              <>Update your notes for <span className="font-medium text-foreground">{item.name}</span></>
+            ) : (
+              <>You've completed <span className="font-medium text-foreground">{item.name}</span>. How was it?</>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,7 +129,7 @@ export function MarkSeenDialog({ item, listId, isOpen, onOpenChange }: MarkSeenD
             disabled={updateItem.isPending}
             className="rounded-xl px-8 h-12"
           >
-            {updateItem.isPending ? "Saving..." : "Save & Complete"}
+            {updateItem.isPending ? "Saving..." : isEditMode ? "Save Changes" : "Save & Complete"}
           </Button>
           <Button 
             variant="ghost" 

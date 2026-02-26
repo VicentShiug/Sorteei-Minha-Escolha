@@ -54,7 +54,12 @@
     "winner": "Sorteado!",
     "itemName": "Nome do item",
     "itemNamePlaceholder": "Digite o nome do item...",
-    "emptyItemName": "Nome do item é obrigatório"
+    "emptyItemName": "Nome do item é obrigatório",
+    "editItem": "Editar Item",
+    "editList": "Editar Lista",
+    "markedAsCompleted": "Marcado como concluído",
+    "itemUpdated": "Item atualizado",
+    "editItemSuccess": "Alterações salvas para \"{{name}}\""
   },
   "auth": {
     "login": "Entrar",

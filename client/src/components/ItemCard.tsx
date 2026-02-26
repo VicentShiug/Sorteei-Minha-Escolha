@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Trash2, Edit3, MessageSquare } from "lucide-react";
+import { Check, Trash2, Edit3, MessageSquare, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./StarRating";
 import { useDeleteItem, useUpdateItem } from "@/hooks/use-items";
@@ -11,9 +11,10 @@ interface ItemCardProps {
   item: Item;
   listExternalId: string;
   onMarkSeenClick: (item: Item) => void;
+  onEditClick: (item: Item) => void;
 }
 
-export function ItemCard({ item, listExternalId, onMarkSeenClick }: ItemCardProps) {
+export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }: ItemCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteItem = useDeleteItem(listExternalId);
   const updateItem = useUpdateItem(listExternalId);
@@ -74,26 +75,48 @@ export function ItemCard({ item, listExternalId, onMarkSeenClick }: ItemCardProp
 
         <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           {!item.isSeen ? (
-            <Button
-              size="icon"
-              variant="outline"
-              className="h-10 w-10 rounded-full border-border/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
-              onClick={() => onMarkSeenClick(item)}
-              title="Mark as done"
-            >
-              <Check className="w-5 h-5" />
-            </Button>
+            <>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-10 w-10 rounded-full hover:bg-primary/5 hover:text-primary"
+                onClick={() => onEditClick(item)}
+                title="Edit item"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-10 w-10 rounded-full border-border/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
+                onClick={() => onMarkSeenClick(item)}
+                title="Mark as done"
+              >
+                <Check className="w-5 h-5" />
+              </Button>
+            </>
           ) : (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive"
-              onClick={handleUnmark}
-              disabled={updateItem.isPending}
-              title="Mark as pending"
-            >
-              <Edit3 className="w-4 h-4" />
-            </Button>
+            <>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-10 w-10 rounded-full border-border/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
+                onClick={() => onEditClick(item)}
+                title="Edit details"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                onClick={handleUnmark}
+                disabled={updateItem.isPending}
+                title="Move back to pending"
+              >
+                <Circle className="w-4 h-4" />
+              </Button>
+            </>
           )}
           <Button
             size="icon"

@@ -224,6 +224,32 @@ export async function registerRoutes(
     }
   });
 
+  app.patch(api.lists.get.path, authenticate, async (req, res) => {
+    try {
+      const externalId = req.params.id as string;
+      const authReq = req as AuthenticatedRequest;
+      const user = await storage.getUserByExternalId(authReq.user!.userExternalId);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      const input = api.lists.update.input.parse(req.body);
+      const list = await storage.updateList(externalId, user.id, input);
+      if (!list) {
+        return res.status(404).json({ message: "List not found" });
+      }
+      res.json(toApiResponse(list));
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
   app.delete(api.lists.delete.path, authenticate, async (req, res) => {
     const authReq = req as AuthenticatedRequest;
     const externalId = req.params.id as string;

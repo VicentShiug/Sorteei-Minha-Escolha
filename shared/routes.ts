@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertListSchema, insertItemSchema, updateItemSchema, lists, items } from './schema';
+import { insertListSchema, insertItemSchema, updateItemSchema, updateListSchema, lists, items } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -42,6 +42,16 @@ export const api = {
       responses: {
         201: z.custom<typeof lists.$inferSelect>(),
         400: errorSchemas.validation,
+      },
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/lists/:id' as const,
+      input: updateListSchema,
+      responses: {
+        200: z.custom<typeof lists.$inferSelect>(),
+        400: errorSchemas.validation,
+        404: errorSchemas.notFound,
       },
     },
     delete: {
@@ -99,5 +109,6 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
 export type ListResponse = z.infer<typeof api.lists.create.responses[201]>;
 export type ItemResponse = z.infer<typeof api.items.create.responses[201]>;
 export type CreateListRequest = z.infer<typeof api.lists.create.input>;
+export type UpdateListRequest = z.infer<typeof api.lists.update.input>;
 export type CreateItemRequest = z.infer<typeof api.items.create.input>;
 export type UpdateItemRequest = z.infer<typeof api.items.update.input>;
