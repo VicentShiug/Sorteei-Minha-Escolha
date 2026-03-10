@@ -50,7 +50,7 @@ export function useCreateList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
       });
-      
+
       if (!res.ok) {
         if (res.status === 400) {
           const err = await res.json();
@@ -58,7 +58,7 @@ export function useCreateList() {
         }
         throw new Error("Failed to create list");
       }
-      
+
       const responseData = await res.json();
       return parseWithLogging(api.lists.create.responses[201], responseData, "lists.create");
     },
@@ -79,7 +79,7 @@ export function useUpdateList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
       });
-      
+
       if (!res.ok) {
         if (res.status === 400) {
           const err = await res.json();
@@ -88,7 +88,7 @@ export function useUpdateList() {
         if (res.status === 404) throw new Error("List not found");
         throw new Error("Failed to update list");
       }
-      
+
       const responseData = await res.json();
       return parseWithLogging(api.lists.update.responses[200], responseData, "lists.update");
     },

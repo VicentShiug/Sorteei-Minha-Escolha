@@ -6,10 +6,14 @@ import { Label } from "@/components/ui/label";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import type { Item } from "@shared/schema";
+
+interface ApiItem {
+  externalId: string;
+  name: string;
+}
 
 interface EditItemDialogProps {
-  item: Item | null;
+  item: ApiItem | null;
   listExternalId?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

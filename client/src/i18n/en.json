@@ -105,11 +105,30 @@
 		"allCaughtUp": "All caught up!",
 		"completedAll": "You've completed every item in this list."
 	},
-	"form": {
-		"listName": "List Name",
-		"listDescription": "Description (optional)",
-		"listNamePlaceholder": "Enter list name...",
-		"listDescriptionPlaceholder": "Enter description...",
-		"emptyName": "List name is required"
-	}
+  "form": {
+    "listName": "List Name",
+    "listDescription": "Description (optional)",
+    "listNamePlaceholder": "Enter list name...",
+    "listDescriptionPlaceholder": "Enter description...",
+    "emptyName": "List name is required"
+  },
+  "members": {
+    "title": "Participants",
+    "description": "Manage members of this list",
+    "owner": "Owner",
+    "you": "You",
+    "leave": "Leave",
+    "remove": "Remove from list",
+    "setAsViewer": "Set as Viewer",
+    "setAsEditorList": "Set as Editor (List)",
+    "setAsEditorItems": "Set as Editor (Items)",
+    "setAsAdmin": "Set as Admin",
+    "removed": "{{name}} removed from list",
+    "left": "You left the list",
+    "permissionUpdated": "Permission updated",
+    "removeFailed": "Failed to remove member",
+    "leaveFailed": "Failed to leave list",
+    "updateFailed": "Failed to update permission",
+    "noMembers": "No members found"
+  }
 }

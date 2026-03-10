@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "./pages/Home";
 import ListDetails from "./pages/ListDetails";
 import Auth from "./pages/Auth";
+import Invite from "./pages/Invite";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Navbar } from "./components/layout/Navbar";
 
@@ -46,6 +47,7 @@ function Router() {
           return <Auth />;
         }}
       </Route>
+      <Route path="/invite/:token" component={() => <Invite />} />
       <Route path="/" component={() => <ProtectedRoute component={Home} />} />
       <Route path="/lists/:id" component={() => <ProtectedRoute component={ListDetails} />} />
       <Route>
