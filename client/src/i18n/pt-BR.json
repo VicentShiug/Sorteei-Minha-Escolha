@@ -111,5 +111,24 @@
     "listNamePlaceholder": "Digite o nome da lista...",
     "listDescriptionPlaceholder": "Digite a descrição...",
     "emptyName": "Nome da lista é obrigatório"
+  },
+  "members": {
+    "title": "Participantes",
+    "description": "Gerencie os membros desta lista",
+    "owner": "Dono",
+    "you": "Você",
+    "leave": "Sair",
+    "remove": "Remover da lista",
+    "setAsViewer": "Definir como Visualizador",
+    "setAsEditorList": "Definir como Editor (Lista)",
+    "setAsEditorItems": "Definir como Editor (Itens)",
+    "setAsAdmin": "Definir como Administrador",
+    "removed": "{{name}} removido da lista",
+    "left": "Você saiu da lista",
+    "permissionUpdated": "Permissão atualizada",
+    "removeFailed": "Falha ao remover membro",
+    "leaveFailed": "Falha ao sair da lista",
+    "updateFailed": "Falha ao atualizar permissão",
+    "noMembers": "Nenhum membro encontrado"
   }
 }

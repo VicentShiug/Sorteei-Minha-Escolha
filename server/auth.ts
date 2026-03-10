@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { type Request, type Response, type NextFunction } from "express";
+import { PermissionLevel } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || JWT_SECRET;
@@ -83,6 +84,26 @@ export function extractAccessToken(req: Request): string | null {
 
 export function extractRefreshToken(req: Request): string | null {
   return req.cookies?.refreshToken || null;
+}
+
+export function hasPermission(userPermission: number, requiredPermission: number): boolean {
+  return userPermission >= requiredPermission;
+}
+
+export function canInviteMembers(permission: number): boolean {
+  return permission >= PermissionLevel.ADMIN;
+}
+
+export function canEditList(permission: number): boolean {
+  return permission >= PermissionLevel.EDITOR_LIST;
+}
+
+export function canEditItems(permission: number): boolean {
+  return permission >= PermissionLevel.EDITOR_ITEMS;
+}
+
+export function canViewList(permission: number): boolean {
+  return permission >= PermissionLevel.VIEWER;
 }
 
 export interface AuthenticatedRequest extends Request {

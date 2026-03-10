@@ -1,27 +1,46 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { Check, Trash2, Edit3, MessageSquare, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./StarRating";
 import { useDeleteItem, useUpdateItem } from "@/hooks/use-items";
 import { ConfirmDialog } from "./ConfirmDialog";
-import type { Item } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-interface ItemCardProps {
-  item: Item;
-  listExternalId: string;
-  onMarkSeenClick: (item: Item) => void;
-  onEditClick: (item: Item) => void;
+interface ApiItem {
+  externalId: string;
+  createdAt: Date;
+  listId: number;
+  name: string;
+  progress?: {
+    externalId: string;
+    createdAt: Date;
+    userId: number;
+    isSeen: boolean;
+    rating: number | null;
+    review: string | null;
+    completedAt: Date | null;
+  };
 }
 
-export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }: ItemCardProps) {
+interface ItemCardProps {
+  item: ApiItem;
+  listExternalId: string;
+  onMarkSeenClick: (item: ApiItem) => void;
+  onEditClick: (item: ApiItem) => void;
+}
+
+export const ItemCard = forwardRef<HTMLDivElement, ItemCardProps>(function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }, ref) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const deleteItem = useDeleteItem(listExternalId);
   const updateItem = useUpdateItem(listExternalId);
   const { t } = useTranslation();
+
+  const isSeen = item.progress?.isSeen ?? false;
+  const rating = item.progress?.rating ?? null;
+  const review = item.progress?.review ?? null;
 
   const handleDelete = () => {
     setIsDeleting(true);
@@ -43,7 +62,7 @@ export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }:
       exit={{ opacity: 0, scale: 0.95 }}
       className={cn(
         "group relative p-5 sm:p-6 rounded-2xl transition-all duration-300 border border-transparent",
-        item.isSeen 
+        isSeen 
           ? "bg-secondary/30 text-muted-foreground" 
           : "bg-card minimal-shadow hover:minimal-shadow-hover hover:-translate-y-1"
       )}
@@ -53,32 +72,32 @@ export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }:
           <div className="flex items-center gap-3 mb-1">
             <h3 className={cn(
               "text-lg font-medium truncate",
-              item.isSeen ? "line-through decoration-muted-foreground/30" : "text-foreground"
+              isSeen ? "line-through decoration-muted-foreground/30" : "text-foreground"
             )}>
               {item.name}
             </h3>
-            {item.isSeen && (
+            {isSeen && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
                 Done
               </span>
             )}
           </div>
           
-          {item.isSeen && item.rating && (
+          {isSeen && rating && (
             <div className="mt-3 flex items-center">
-              <StarRating rating={item.rating} readOnly size="sm" />
+              <StarRating rating={rating} readOnly size="sm" />
             </div>
           )}
           
-          {item.isSeen && item.review && (
+          {isSeen && review && (
             <div className="mt-3 text-sm italic border-l-2 border-primary/20 pl-3 py-1 bg-secondary/20 rounded-r-lg">
-              "{item.review}"
+              "{review}"
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-          {!item.isSeen ? (
+          {!isSeen ? (
             <>
               <Button
                 size="icon"
@@ -149,4 +168,4 @@ export function ItemCard({ item, listExternalId, onMarkSeenClick, onEditClick }:
       />
     </motion.div>
   );
-}
+});

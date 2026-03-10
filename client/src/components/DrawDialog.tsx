@@ -2,9 +2,24 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Dices, ArrowRight, Calculator, Cpu, Search, Brain, Target, Shuffle, RefreshCw } from "lucide-react";
-import type { Item } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+
+interface ApiItem {
+  externalId: string;
+  createdAt: Date;
+  listId: number;
+  name: string;
+  progress?: {
+    externalId: string;
+    createdAt: Date;
+    userId: number;
+    isSeen: boolean;
+    rating: number | null;
+    review: string | null;
+    completedAt: Date | null;
+  };
+}
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   dices: Dices,
@@ -25,12 +40,12 @@ interface ThinkingItem {
 
 export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDialogProps) {
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawnItem, setDrawnItem] = useState<Item | null>(null);
+  const [drawnItem, setDrawnItem] = useState<ApiItem | null>(null);
   const [thinkingItem, setThinkingItem] = useState<ThinkingItem | null>(null);
   const [thinkingKey, setThinkingKey] = useState<string | null>(null);
   const { t } = useTranslation();
 
-  const unseenItems = items.filter(item => !item.isSeen);
+  const unseenItems = items.filter(item => !(item.progress?.isSeen ?? false));
 
   const getRandomThinking = useCallback((currentKey: string | null): { item: ThinkingItem; key: string } => {
     const thinkingData = t('draw.thinking', { returnObjects: true }) as Record<string, ThinkingItem>;
@@ -176,8 +191,8 @@ export function DrawDialog({ items, isOpen, onOpenChange, onMarkSeen }: DrawDial
 }
 
 interface DrawDialogProps {
-  items: Item[];
+  items: ApiItem[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onMarkSeen: (item: Item) => void;
+  onMarkSeen: (item: ApiItem) => void;
 }

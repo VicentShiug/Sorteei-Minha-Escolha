@@ -7,11 +7,26 @@ import { StarRating } from "./StarRating";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import type { Item } from "@shared/schema";
 import confetti from "canvas-confetti";
 
+interface ApiItem {
+  externalId: string;
+  createdAt: Date;
+  listId: number;
+  name: string;
+  progress?: {
+    externalId: string;
+    createdAt: Date;
+    userId: number;
+    isSeen: boolean;
+    rating: number | null;
+    review: string | null;
+    completedAt: Date | null;
+  };
+}
+
 interface MarkSeenDialogProps {
-  item: Item | null;
+  item: ApiItem | null;
   listId?: string;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,8 +42,8 @@ export function MarkSeenDialog({ item, listId, isOpen, onOpenChange, isEditMode 
 
   useEffect(() => {
     if (isOpen && isEditMode && item) {
-      setRating(item.rating || 0);
-      setReview(item.review || "");
+      setRating(item.progress?.rating || 0);
+      setReview(item.progress?.review || "");
     } else if (!isOpen) {
       setRating(0);
       setReview("");

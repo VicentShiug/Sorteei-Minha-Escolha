@@ -7,12 +7,17 @@ import { Label } from "@/components/ui/label";
 import { useCreateList, useUpdateList } from "@/hooks/use-lists";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import type { List } from "@shared/schema";
+
+interface ApiList {
+  externalId: string;
+  name: string;
+  description: string | null;
+}
 
 interface ListFormDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  list?: List;
+  list?: ApiList;
 }
 
 export function ListFormDialog({ isOpen, onOpenChange, list }: ListFormDialogProps) {
