@@ -63,7 +63,16 @@
 		"editList": "Edit List",
 		"markedAsCompleted": "Marked as completed",
 		"itemUpdated": "Item updated",
-		"editItemSuccess": "Changes saved for \"{{name}}\""
+		"editItemSuccess": "Changes saved for \"{{name}}\"",
+		"noPendingItems": "No pending items",
+		"noCompletedItems": "No completed items yet",
+		"othersProgress": "Others' progress",
+		"otherParticipants": "Other participants",
+		"pendingForYou": "Pending for you",
+		"seeParticipantsProgress": "See participants ({{count}})",
+		"hideParticipantsProgress": "Hide progress",
+		"participantCompleted": "Completed",
+		"participantPending": "Pending"
 	},
 	"auth": {
 		"login": "Login",

@@ -213,7 +213,8 @@ export async function registerRoutes(
       ...toApiResponse(list),
       items: list.items.map(item => ({
         ...toApiItemResponse(item),
-        progress: item.progress ? toApiItemProgressResponse(item.progress) : undefined
+        progress: item.progress ? toApiItemProgressResponse(item.progress) : undefined,
+        participantsProgress: item.participantsProgress
       })),
       userPermission: list.userPermission
     });

@@ -8,9 +8,9 @@ export function toApiItemResponse<T extends Record<string, any>>(obj: T): Omit<T
   return rest;
 }
 
-export function toApiItemProgressResponse<T extends Record<string, any>>(obj: T): Omit<T, 'id' | 'itemId' | 'listId'> {
-  const { id, itemId, listId, ...rest } = obj;
-  return rest;
+export function toApiItemProgressResponse<T extends Record<string, any>>(obj: T): Omit<T, 'id' | 'itemId' | 'listId' | 'userId'> & { externalId: string } {
+  const { id, itemId, listId, userId, ...rest } = obj;
+  return { ...rest, externalId: obj.externalId };
 }
 
 export function toApiListResponse<T extends Record<string, any>>(items: T[]) {
