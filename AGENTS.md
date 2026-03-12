@@ -275,6 +275,19 @@ All `/api/lists/*` and `/api/items/*` routes require authentication via the `aut
 - Routes are protected in `App.tsx` via `ProtectedRoute` component
 - All ID parameters in URLs are UUID strings (`externalId`), not numeric IDs
 
+### AuthContext States
+
+O `AuthContext` possui os seguintes estados:
+
+| Estado | Descrição |
+|--------|-----------|
+| `user` | Dados do usuário logado ou `null` |
+| `isLoading` | `true` enquanto verifica se há sessão ativa |
+| `isAuthenticated` | `true` se há usuário logado (`!!user`) |
+| `isProcessing` | `true` durante login/register (usado para evitar redirect automático) |
+
+O `isProcessing` é importante para fluxos onde o Auth precisa fazer redirects condicionais após login (ex: aceitar convite de lista).
+
 ## Adding New Features
 
 1. **Database schema**: Add table/columns in `shared/schema.ts`
@@ -299,3 +312,30 @@ This project contains additional AGENTS.md files in specific directories with de
 | `shared/AGENTS.md` | Shared patterns (Drizzle schema, API routes) |
 
 Consult these files for specific conventions when working in each area.
+
+## Individual Item Progress
+
+Each item's progress is individual per user and stored in the `itemProgress` 
+table. Item status is derived from the `completedAt` field:
+- `completedAt = null` → item is Pending
+- `completedAt != null` → item is Completed
+
+Never store status directly on the item. All completion logic, rating and 
+review must operate on `itemProgress`.
+
+When a new member joins a list, automatically create `itemProgress` records 
+with `completedAt = null` for all existing items in that list.
+When a new item is added to a shared list, automatically create `itemProgress` 
+records for all current members.
+
+## Shared List Permissions
+
+The list owner is identified by `lists.userId` — they have no record in 
+`listMembers` but have implicit full permission.
+
+Additional members are stored in `listMembers` with one of the levels from 
+the `PermissionLevel` enum (VIEWER=1, EDITOR_LIST=2, EDITOR_ITEMS=3, ADMIN=4).
+
+Every route involving an action on a list must verify permissions through a 
+centralized helper — never check `ownerId` directly. The helper must consider 
+both the owner and members with sufficient permission level.

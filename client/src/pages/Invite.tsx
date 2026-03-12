@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useInvitePreview, useAcceptInvite } from "@/hooks/use-shared";
 import { PermissionLevel } from "@shared/schema";
-import { useTranslation } from "react-i18next";
 
 const permissionLabels: Record<number, string> = {
   [PermissionLevel.VIEWER]: "Viewer - Can view list, draw, and mark items as completed",
@@ -16,31 +15,39 @@ const permissionLabels: Record<number, string> = {
 
 export default function Invite() {
   const params = useParams();
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   const token = params.token as string;
   
   const { data: invite, isLoading, error } = useInvitePreview(token);
   const acceptInvite = useAcceptInvite();
-
+  
   const [isAccepting, setIsAccepting] = useState(false);
 
   const handleAccept = async () => {
-    if (!isAuthenticated) {
-      const redirectTo = `/invite/${token}`;
-      setLocation(`/auth?redirectTo=${encodeURIComponent(redirectTo)}`);
-      return;
-    }
-
     setIsAccepting(true);
     try {
       await acceptInvite.mutateAsync(token);
-      setLocation(`/`);
+      setLocation("/");
     } catch (err) {
       console.error("Failed to accept invite:", err);
     } finally {
       setIsAccepting(false);
     }
+  };
+
+  const onAccept = () => {
+    if (isAuthenticated) {
+      handleAccept();
+    } else {
+      const authParams = JSON.stringify({ inviteToken: token, action: "accept" });
+      sessionStorage.setItem("authParams", authParams);
+      setLocation("/auth");
+    }
+  };
+
+  const onDecline = () => {
+    setLocation("/");
   };
 
   if (isLoading) {
@@ -165,14 +172,16 @@ export default function Invite() {
         </div>
 
         <div className="flex gap-4 mt-8">
-          <Link href="/" className="flex-1">
-            <Button variant="outline" className="w-full h-12">
-              <X className="w-4 h-4 mr-2" />
-              Decline
-            </Button>
-          </Link>
           <Button
-            onClick={handleAccept}
+            variant="outline"
+            className="flex-1 h-12"
+            onClick={onDecline}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Decline
+          </Button>
+          <Button
+            onClick={onAccept}
             disabled={isAccepting}
             className="flex-1 h-12"
           >
