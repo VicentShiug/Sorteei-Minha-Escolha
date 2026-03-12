@@ -32,8 +32,9 @@
 			"6": { "title": "Sorting options", "subtitle": "Organize your lists and let luck choose your next content.", "icon": "shuffle" },
 			"7": { "title": "Calculating results", "subtitle": "Organize your lists and let the algorithm calculate your next content.", "icon": "cpu" }
 		},
-		"createList": "Create List",
-		"noLists": "No lists yet",
+    "createList": "Create List",
+    "shared": "Shared",
+    "noLists": "No lists yet",
 		"noListsDescription": "Create your first list to start organizing your content.",
 		"items": "items",
 		"item": "item",

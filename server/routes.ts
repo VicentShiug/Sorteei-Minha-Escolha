@@ -187,6 +187,7 @@ export async function registerRoutes(
     const lists = await storage.getLists(user.id);
     const response = lists.map((list) => ({
       ...toApiResponse(list),
+      isShared: list.isShared,
       items: list.items.map(item => ({
         ...toApiItemResponse(item),
         progress: item.progress ? toApiItemProgressResponse(item.progress) : undefined
@@ -211,6 +212,7 @@ export async function registerRoutes(
     
     res.json({
       ...toApiResponse(list),
+      isShared: list.isShared,
       items: list.items.map(item => ({
         ...toApiItemResponse(item),
         progress: item.progress ? toApiItemProgressResponse(item.progress) : undefined,

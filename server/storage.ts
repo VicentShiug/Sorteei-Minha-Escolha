@@ -61,6 +61,7 @@ export interface IStorage {
 		(List & {
 			items: (Item & { progress?: ItemProgress })[];
 			userPermission: { permission: number; isOwner: boolean };
+			isShared: boolean;
 		})[]
 	>;
 	getListByExternalId(
@@ -70,6 +71,7 @@ export interface IStorage {
 		| (List & {
 				items: ItemWithAllProgress[];
 				userPermission: { permission: number; isOwner: boolean };
+				isShared: boolean;
 		  })
 		| undefined
 	>;
@@ -255,6 +257,7 @@ export class DatabaseStorage implements IStorage {
 		(List & {
 			items: (Item & { progress?: ItemProgress })[];
 			userPermission: { permission: number; isOwner: boolean };
+			isShared: boolean;
 		})[]
 	> {
 		const allLists = await db
@@ -271,6 +274,7 @@ export class DatabaseStorage implements IStorage {
 			List & {
 				items: (Item & { progress?: ItemProgress })[];
 				userPermission: { permission: number; isOwner: boolean };
+				isShared: boolean;
 			}
 		>();
 
@@ -301,6 +305,8 @@ export class DatabaseStorage implements IStorage {
 					row.lists.externalId,
 				);
 
+				const memberCount = await this.getMemberCount(row.lists.id);
+
 				uniqueListsMap.set(row.lists.id, {
 					...row.lists,
 					items: itemsWithProgress,
@@ -308,6 +314,7 @@ export class DatabaseStorage implements IStorage {
 						permission: PermissionLevel.VIEWER,
 						isOwner: false,
 					},
+					isShared: memberCount > 0,
 				});
 			}
 		}
@@ -322,6 +329,7 @@ export class DatabaseStorage implements IStorage {
 		| (List & {
 				items: ItemWithAllProgress[];
 				userPermission: { permission: number; isOwner: boolean };
+				isShared: boolean;
 		  })
 		| undefined
 	> {
@@ -398,10 +406,13 @@ export class DatabaseStorage implements IStorage {
 			}),
 		);
 
+		const memberCount = await this.getMemberCount(list.id);
+
 		return {
 			...list,
 			items: itemsWithAllProgress,
 			userPermission: perm,
+			isShared: memberCount > 0,
 		};
 	}
 
