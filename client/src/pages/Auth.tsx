@@ -8,6 +8,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
+interface AuthParams {
+  inviteToken?: string;
+  action?: string;
+}
+
+function getAuthParams(): AuthParams {
+  try {
+    const data = sessionStorage.getItem("authParams");
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+}
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");
@@ -18,7 +32,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   
   const { login, register } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +58,17 @@ export default function Auth() {
       } else {
         await register(name, email, password);
       }
+
+      const authParams = getAuthParams();
+      
+      if (authParams.inviteToken && authParams.action === "accept") {
+        await fetch(`/api/invites/${authParams.inviteToken}/accept`, {
+          method: "POST",
+          credentials: "include",
+        });
+        sessionStorage.removeItem("authParams");
+      }
+      
       setLocation("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

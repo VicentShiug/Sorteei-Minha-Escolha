@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Users, Crown, Settings, MoreVertical, LogOut, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ interface MembersListProps {
 }
 
 export function MembersList({ listExternalId, currentExternalId, isOwner, isOpen, onOpenChange }: MembersListProps) {
+  const [, setLocation] = useLocation();
   const { data: members, isLoading } = useListMembers(listExternalId);
   const updateMember = useUpdateMemberPermission(listExternalId);
   const removeMember = useRemoveMember(listExternalId);
@@ -55,14 +57,16 @@ export function MembersList({ listExternalId, currentExternalId, isOwner, isOpen
   };
 
   const handleLeaveList = async () => {
-    if (!currentExternalId) {
+    const currentMember = members?.find((m) => m.isCurrentUser && m.externalId);
+    if (!currentMember) {
       toast({ title: t("members.leaveFailed"), description: t("common.idNotFound"), variant: "destructive" });
       return;
     }
     try {
-      await leaveList.mutateAsync(currentExternalId);
+      await leaveList.mutateAsync(currentMember.externalId!);
       toast({ title: t("members.left") });
       onOpenChange(false);
+      setLocation("/");
     } catch (error) {
       toast({ title: t("members.leaveFailed"), variant: "destructive" });
     }

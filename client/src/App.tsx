@@ -29,7 +29,7 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
 }
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isProcessing } = useAuth();
 
   if (isLoading) {
     return (
@@ -43,7 +43,7 @@ function Router() {
     <Switch>
       <Route path="/auth">
         {() => {
-          if (isAuthenticated) return <Redirect to="/" />;
+          if (isAuthenticated && !isProcessing) return <Redirect to="/" />;
           return <Auth />;
         }}
       </Route>
