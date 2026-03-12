@@ -33,6 +33,7 @@
       "7": { "title": "Calculando resultados", "subtitle": "Organize suas listas e deixe o algoritmo calcular seu próximo conteúdo.", "icon": "cpu" }
     },
     "createList": "Criar Lista",
+    "shared": "Compartilhada",
     "noLists": "Nenhuma lista ainda",
     "noListsDescription": "Crie sua primeira lista para começar a organizar seu conteúdo.",
     "items": "itens",

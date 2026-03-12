@@ -283,3 +283,19 @@ All `/api/lists/*` and `/api/items/*` routes require authentication via the `aut
 4. **Frontend hooks**: Create TanStack Query hooks in `client/src/hooks/`
 5. **UI components**: Add in appropriate location under `client/src/components/`
 6. **Types**: Ensure TypeScript types are properly inferred or exported
+
+## Documentation by Directory
+
+This project contains additional AGENTS.md files in specific directories with detailed patterns:
+
+| File | Description |
+|------|-------------|
+| `client/src/components/ui/AGENTS.md` | UI Components patterns (Radix UI, CVA, variants) |
+| `client/src/components/AGENTS.md` | Business Components patterns (props, hooks, i18n) |
+| `client/src/hooks/AGENTS.md` | TanStack Query hooks patterns |
+| `client/src/pages/AGENTS.md` | Pages patterns (Wouter, Framer Motion) |
+| `client/src/lib/AGENTS.md` | Utilities patterns (cn, api client) |
+| `server/AGENTS.md` | Backend patterns (Express routes, middleware) |
+| `shared/AGENTS.md` | Shared patterns (Drizzle schema, API routes) |
+
+Consult these files for specific conventions when working in each area.

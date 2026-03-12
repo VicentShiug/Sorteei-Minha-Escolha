@@ -11,6 +11,7 @@ import {
 	Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useList } from "@/hooks/use-lists";
 import { useAuth } from "@/context/AuthContext";
 import { queryClient } from "@/lib/queryClient";
@@ -51,6 +52,7 @@ interface ApiList {
 	externalId: string;
 	name: string;
 	description: string | null;
+	isShared?: boolean;
 	items: ApiItem[];
 	userPermission?: {
 		permission: number;
@@ -200,6 +202,15 @@ export default function ListDetails() {
 							<p className="text-lg text-muted-foreground">
 								{list.description}
 							</p>
+						)}
+						{(!list.description || list.isShared) && (
+							<div className={list.description ? "mt-2" : ""}>
+								{list.isShared && (
+									<Badge className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full border-0 shadow-none font-normal">
+										{t('home.shared')}
+									</Badge>
+								)}
+							</div>
 						)}
 					</div>
 

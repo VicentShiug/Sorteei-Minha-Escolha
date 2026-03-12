@@ -12,6 +12,7 @@ import {
 	Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLists, useDeleteList } from "@/hooks/use-lists";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -36,6 +37,7 @@ interface ClientListType {
 	externalId: string;
 	name: string;
 	description: string | null;
+	isShared?: boolean;
 	items: {
 		externalId: string;
 		progress?: {
@@ -163,8 +165,15 @@ export default function Home() {
 											<div className="absolute -right-12 -top-12 w-40 h-40 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
 
 											<div className="flex justify-between items-start mb-6 relative z-10">
-												<div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-													<ListFilter className="w-6 h-6" />
+												<div className="flex items-center gap-3">
+													<div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+														<ListFilter className="w-6 h-6" />
+													</div>
+													{list.isShared && (
+														<Badge className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full border-0 shadow-none font-normal">
+															{t('home.shared')}
+														</Badge>
+													)}
 												</div>
 
 												<div className="flex gap-1">

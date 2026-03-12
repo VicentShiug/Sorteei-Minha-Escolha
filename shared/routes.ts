@@ -61,6 +61,7 @@ const listWithItemsSchema = z.object({
   externalId: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  isShared: z.boolean(),
   items: z.array(itemWithProgressSchema),
   userPermission: z.object({
     permission: z.number(),
