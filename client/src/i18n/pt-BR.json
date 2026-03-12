@@ -63,7 +63,16 @@
     "editList": "Editar Lista",
     "markedAsCompleted": "Marcado como concluído",
     "itemUpdated": "Item atualizado",
-    "editItemSuccess": "Alterações salvas para \"{{name}}\""
+    "editItemSuccess": "Alterações salvas para \"{{name}}\"",
+    "noPendingItems": "Nenhum item pendente",
+    "noCompletedItems": "Nenhum item concluído ainda",
+    "othersProgress": "Progresso dos outros",
+    "otherParticipants": "Outros participantes",
+    "pendingForYou": "Pendente para você",
+    "seeParticipantsProgress": "Ver participantes ({{count}})",
+    "hideParticipantsProgress": "Ocultar progresso",
+    "participantCompleted": "Concluído",
+    "participantPending": "Pendente"
   },
   "auth": {
     "login": "Entrar",

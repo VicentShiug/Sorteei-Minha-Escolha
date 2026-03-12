@@ -8,17 +8,22 @@ import { useTranslation } from "react-i18next";
 interface ApiItem {
   externalId: string;
   createdAt: Date;
-  listId: number;
   name: string;
   progress?: {
     externalId: string;
     createdAt: Date;
-    userId: number;
     isSeen: boolean;
     rating: number | null;
     review: string | null;
     completedAt: Date | null;
   };
+  participantsProgress?: {
+    externalId: string;
+    name: string;
+    completedAt: Date | null;
+    rating?: number | null;
+    review?: string | null;
+  }[];
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {

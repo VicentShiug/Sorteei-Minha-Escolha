@@ -39,17 +39,22 @@ const memberUpdateResponseSchema = z.object({
 const itemWithProgressSchema = z.object({
   externalId: z.string().uuid(),
   createdAt: z.coerce.date(),
-  listId: z.number(),
   name: z.string(),
   progress: z.object({
     externalId: z.string().uuid(),
     createdAt: z.coerce.date(),
-    userId: z.number(),
     isSeen: z.boolean(),
     rating: z.number().nullable(),
     review: z.string().nullable(),
     completedAt: z.coerce.date().nullable(),
   }).optional(),
+  participantsProgress: z.array(z.object({
+    externalId: z.string().uuid(),
+    name: z.string(),
+    completedAt: z.coerce.date().nullable(),
+    rating: z.number().nullable().optional(),
+    review: z.string().nullable().optional(),
+  })).optional(),
 });
 
 const listWithItemsSchema = z.object({

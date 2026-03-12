@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "wouter";
 import {
 	ArrowLeft,
@@ -29,17 +29,22 @@ import { useTranslation } from "react-i18next";
 interface ApiItem {
 	externalId: string;
 	createdAt: Date;
-	listId: number;
 	name: string;
 	progress?: {
 		externalId: string;
 		createdAt: Date;
-		userId: number;
 		isSeen: boolean;
 		rating: number | null;
 		review: string | null;
 		completedAt: Date | null;
 	};
+	participantsProgress?: {
+		externalId: string;
+		name: string;
+		completedAt: Date | null;
+		rating?: number | null;
+		review?: string | null;
+	}[];
 }
 
 interface ApiList {
@@ -77,6 +82,10 @@ export default function ListDetails() {
 	const [activeTab, setActiveTab] = useState<"pending" | "completed">(
 		"pending",
 	);
+
+	const handleTabChange = useCallback((tab: "pending" | "completed") => {
+		setActiveTab(tab);
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -209,7 +218,8 @@ export default function ListDetails() {
 				{/* Content Tabs */}
 				<div className="flex items-center gap-2 mb-8 bg-secondary/50 p-1.5 rounded-2xl w-full sm:w-auto sm:inline-flex">
 					<button
-						onClick={() => setActiveTab("pending")}
+						type="button"
+						onClick={() => handleTabChange("pending")}
 						className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
 							activeTab === "pending"
 								? "bg-card text-foreground shadow-sm"
@@ -222,7 +232,8 @@ export default function ListDetails() {
 						</div>
 					</button>
 					<button
-						onClick={() => setActiveTab("completed")}
+						type="button"
+						onClick={() => handleTabChange("completed")}
 						className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
 							activeTab === "completed"
 								? "bg-card text-foreground shadow-sm"
@@ -261,6 +272,8 @@ export default function ListDetails() {
 									listExternalId={list.externalId}
 									onMarkSeenClick={handleMarkSeenClick}
 									onEditClick={handleEditItemClick}
+									isInCompletedTab={activeTab === "completed"}
+									currentUserExternalId={user?.externalId ?? ""}
 								/>
 							))
 						) : (
